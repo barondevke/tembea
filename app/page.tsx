@@ -13,7 +13,7 @@ export default function Home() {
       <section className="container py-12 space-y-6">
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Discover Amazing Destinations</h2>
-          <p className="text-muted-foreground">Explore handpicked tour packages for your next adventure</p>
+          <p className="text-muted-foreground ">Explore handpicked tour packages for your next adventure</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <div className="flex flex-col items-center p-6 bg-white rounded-lg shadow-sm border">

@@ -117,7 +117,7 @@ export default function BookingSuccessPage() {
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6">
               <img
-                src={bookingDetails.tour.image || "/placeholder.svg"}
+                src="/serengeti-1.jpg"
                 alt={bookingDetails.tour.title}
                 className="w-full md:w-1/3 h-48 object-cover rounded-lg"
               />

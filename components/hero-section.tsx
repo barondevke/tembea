@@ -5,8 +5,8 @@ import SearchForm from "@/components/search-form";
 
 export default function HeroSection() {
   return (
-    <section className="relative bg-purple-900 text-white">
-      <div className="absolute inset-0 bg-[url('/placeholder.svg?height=800&width=1600')] bg-cover bg-center opacity-30" />
+    <section className="relative text-white">
+      <div className="absolute inset-0 bg-[url('/hero.jpg')] bg-cover bg-center" />
       <div className="container relative z-10 py-20 md:py-32 flex flex-col items-center text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-4">
           Discover Your Perfect Adventure

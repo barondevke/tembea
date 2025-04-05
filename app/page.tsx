@@ -92,7 +92,7 @@ export default function Home() {
             </div>
             <div className="md:w-1/2">
               <img
-                src="/placeholder.svg?height=300&width=500"
+                src="/family-vacation.jpg"
                 alt="Travel illustration"
                 className="rounded-lg shadow-md"
               />

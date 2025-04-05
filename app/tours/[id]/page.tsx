@@ -57,10 +57,10 @@ const getTour = (id: string) => {
       },
     ],
     images: [
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
-      "/placeholder.svg?height=600&width=800",
+      "/serengeti-1.jpg",
+      "/serengeti-2.jpg",
+      "/serengeti-3.jpg",
+      "/serengeti-4.jpg",
     ],
     description:
       "Experience the wonder of the Serengeti on this unforgettable 7-day safari adventure. Witness the incredible wildlife in their natural habitat, including the Big Five and the Great Migration. Our expert guides will ensure you have the best possible wildlife viewing experiences while staying in comfortable safari lodges.",

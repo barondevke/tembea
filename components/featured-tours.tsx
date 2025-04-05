@@ -27,7 +27,7 @@ const tours = [
     price: 1299,
     rating: 4.7,
     reviews: 98,
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/bali.jpg",
   },
   {
     id: 3,
@@ -37,7 +37,7 @@ const tours = [
     price: 1599,
     rating: 4.6,
     reviews: 86,
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/amazon.jpg",
   },
   {
     id: 4,
@@ -47,7 +47,7 @@ const tours = [
     price: 2499,
     rating: 4.9,
     reviews: 156,
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/kyoto.jpg",
     featured: true,
   },
   {
@@ -58,7 +58,7 @@ const tours = [
     price: 1799,
     rating: 4.7,
     reviews: 112,
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/santorini.jpg",
   },
   {
     id: 6,
@@ -68,7 +68,7 @@ const tours = [
     price: 1999,
     rating: 4.8,
     reviews: 204,
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/machu-picchu-trek.jpg",
   },
 ]
 

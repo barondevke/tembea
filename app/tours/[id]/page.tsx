@@ -17,6 +17,8 @@ import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 
 // This would typically come from a database
+
+
 const getTour = (id: string) => {
   return {
     id: Number.parseInt(id),
@@ -140,6 +142,8 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
+  const [loading, setLoading] = useState(false);
+
 
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewComment, setReviewComment] = useState("")
@@ -150,7 +154,7 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
   const [selectedDate, setSelectedDate] = useState<string>("")
 
   const handleBookNow = () => {
-    if (!user) {
+   if (!user) {
       toast({
         title: "Sign in required",
         description: "Please sign in to book this tour",
@@ -173,7 +177,7 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
     // For demo purposes, we'll just navigate to a success page
     router.push(`/booking/success?tourId=${tour.id}&date=${selectedDate}&travelers=${selectedTravelers}`)
   }
-
+  
   const handleAddToWishlist = () => {
     if (!user) {
       toast({
@@ -236,6 +240,26 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
       })
     }, 1500)
   }
+
+  const handleBuyNow = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("http://localhost:4000/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url; // Redirect to Stripe checkout
+      } else {
+        console.error("Checkout session failed");
+      }
+    } catch (error) {
+      console.error("Error creating checkout session:", error);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="container py-10">
@@ -537,7 +561,7 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="space-y-3">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleBookNow}>
+              <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleBuyNow}>
                 Book Now
               </Button>
 

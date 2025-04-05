@@ -7,13 +7,13 @@ import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from "@/components/navbar"
 import Footer from "@/components/footer"
 import { AuthProvider } from "@/components/auth-provider"
+import { Toaster } from "@/components/ui/toaster"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" })
 
 export const metadata: Metadata = {
   title: "Tembea - Discover Amazing Tour Packages",
   description: "Find and book your next adventure with Tembea, your trusted tourism advisor.",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} ${inter.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <AuthProvider>
             <div className="flex flex-col min-h-screen">
@@ -31,6 +31,7 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </body>
@@ -38,6 +39,3 @@ export default function RootLayout({
   )
 }
 
-
-
-import './globals.css'

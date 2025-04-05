@@ -15,7 +15,7 @@ const tours = [
     price: 1899,
     rating: 4.8,
     reviews: 124,
-    image: "/placeholder.svg?height=400&width=600",
+    image: "/serengeti.jpg",
     featured: true,
     discount: 15,
   },

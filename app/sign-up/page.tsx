@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
+// Fix the import path - remove the .tsx extension
 import { useAuth } from "@/lib/auth"
 import { useToast } from "@/components/ui/use-toast"
 

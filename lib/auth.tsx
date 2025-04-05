@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { createContext, useContext, useState, useEffect } from "react"
 
 type User = {
@@ -31,9 +30,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check if user is stored in localStorage
-    const storedUser = localStorage.getItem("tembea-user")
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    try {
+      const storedUser = localStorage.getItem("tembea-user")
+      if (storedUser) {
+        setUser(JSON.parse(storedUser))
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error)
     }
     setLoading(false)
   }, [])
@@ -49,12 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setUser(mockUser)
-    localStorage.setItem("tembea-user", JSON.stringify(mockUser))
+    try {
+      localStorage.setItem("tembea-user", JSON.stringify(mockUser))
+    } catch (error) {
+      console.error("Error setting localStorage:", error)
+    }
   }
 
   const signOut = () => {
     setUser(null)
-    localStorage.removeItem("tembea-user")
+    try {
+      localStorage.removeItem("tembea-user")
+    } catch (error) {
+      console.error("Error removing from localStorage:", error)
+    }
   }
 
   return <AuthContext.Provider value={{ user, signIn, signOut, loading }}>{children}</AuthContext.Provider>

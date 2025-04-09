@@ -1,11 +1,12 @@
 import Link from "next/link"
 import { MapPin } from "lucide-react"
-
+import { useEffect,useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 
 // Sample tour data
+
 const tours = [
   {
     id: 1,

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Calendar, Clock, MapPin, Users, ChevronRight, Star, Heart } from "lucide-react"
 
@@ -15,130 +15,57 @@ import { useToast } from "@/components/ui/use-toast"
 // Fix the import path - remove the .tsx extension
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
-
+import {Tour} from "@/app/tours/[id]/lib"
 // This would typically come from a database
 
 
-const getTour = (id: string) => {
-  return {
-    id: Number.parseInt(id),
-    title: "Serengeti Safari Adventure",
-    location: "Tanzania",
-    duration: "7 days",
-    price: 1899,
-    discountPrice: 1614,
-    discount: 15,
-    rating: 4.8,
-    reviews: [
-      {
-        id: 1,
-        name: "Sarah Johnson",
-        date: "August 15, 2023",
-        rating: 5,
-        comment:
-          "This safari exceeded all our expectations! Our guide was incredibly knowledgeable and we saw all of the Big Five. The lodges were comfortable and the food was excellent.",
-        avatar: "/placeholder.svg?height=50&width=50",
-      },
-      {
-        id: 2,
-        name: "Michael Chen",
-        date: "July 3, 2023",
-        rating: 5,
-        comment:
-          "An incredible experience from start to finish. The wildlife sightings were amazing - we saw lions hunting, elephants bathing, and even a leopard in a tree. Highly recommend!",
-        avatar: "/placeholder.svg?height=50&width=50",
-      },
-      {
-        id: 3,
-        name: "Emma Williams",
-        date: "June 18, 2023",
-        rating: 4,
-        comment:
-          "Great trip overall. The accommodations were excellent and our guide was fantastic. Would have liked a bit more time in the Serengeti, but otherwise perfect.",
-        avatar: "/placeholder.svg?height=50&width=50",
-      },
-    ],
-    images: [
-      "/serengeti-1.jpg",
-      "/serengeti-2.jpg",
-      "/serengeti-3.jpg",
-      "/serengeti-4.jpg",
-    ],
-    description:
-      "Experience the wonder of the Serengeti on this unforgettable 7-day safari adventure. Witness the incredible wildlife in their natural habitat, including the Big Five and the Great Migration. Our expert guides will ensure you have the best possible wildlife viewing experiences while staying in comfortable safari lodges.",
-    highlights: [
-      "Witness the Great Migration, one of nature's most spectacular events",
-      "Spot the Big Five: lion, leopard, elephant, buffalo, and rhino",
-      "Experience sunrise game drives in custom safari vehicles",
-      "Stay in luxury safari lodges with spectacular views",
-      "Visit local Maasai villages and learn about their culture",
-      "Enjoy sundowners while watching the African sunset",
-    ],
-    included: [
-      "All accommodations (6 nights in safari lodges)",
-      "All meals (breakfast, lunch, and dinner)",
-      "Airport transfers and all transportation",
-      "Professional English-speaking guide",
-      "Game drives and park entrance fees",
-      "Bottled water throughout the trip",
-    ],
-    notIncluded: [
-      "International flights",
-      "Travel insurance",
-      "Visa fees",
-      "Personal expenses",
-      "Alcoholic beverages",
-      "Tips and gratuities",
-    ],
-    itinerary: [
-      {
-        day: 1,
-        title: "Arrival in Arusha",
-        description:
-          "Arrive at Kilimanjaro International Airport, where you'll be met by your guide and transferred to your hotel in Arusha. Enjoy a welcome dinner and briefing about your upcoming safari adventure.",
-      },
-      {
-        day: 2,
-        title: "Arusha to Serengeti National Park",
-        description:
-          "After breakfast, fly to the Serengeti. Enjoy lunch at your lodge, followed by an afternoon game drive to begin your wildlife viewing experience.",
-      },
-      {
-        day: 3,
-        title: "Serengeti National Park",
-        description:
-          "Full day of game drives in the Serengeti, with opportunities to see lions, elephants, giraffes, and other wildlife. Enjoy meals at the lodge and evening relaxation time.",
-      },
-      {
-        day: 4,
-        title: "Serengeti National Park",
-        description:
-          "Another full day exploring different regions of the Serengeti, following wildlife movements and experiencing the vast landscapes.",
-      },
-      {
-        day: 5,
-        title: "Serengeti to Ngorongoro Conservation Area",
-        description:
-          "Morning game drive in the Serengeti, then transfer to Ngorongoro Conservation Area. Stay at a lodge on the crater rim with spectacular views.",
-      },
-      {
-        day: 6,
-        title: "Ngorongoro Crater",
-        description:
-          "Full-day exploration of Ngorongoro Crater, a UNESCO World Heritage site with one of the highest concentrations of wildlife in Africa.",
-      },
-      {
-        day: 7,
-        title: "Departure",
-        description:
-          "After breakfast, transfer to the airport for your departure flight, marking the end of your safari adventure.",
-      },
-    ],
-  }
-}
 
-export default function TourDetailPage({ params }: { params: { id: string } }) {
-  const tour = getTour(params.id)
+export default async function TourDetailPage({ params }: { params: { id: number } }) {
+  const tourDefault : Tour = {
+    id: null,
+    title: null,
+    description: null,
+    price: null,
+    location: null,
+    duration: null,
+    images: [],
+    reviews: [],
+    highlights: [],
+    included: [],
+    rating:null,
+    discount:null,
+    discount_price:null,
+    notIncluded: [],
+    itinerary: []
+  };
+  const [tour, setTour] = useState<Tour>(tourDefault);
+
+
+
+  const getTour = async (id: number ): Promise<void> => {
+    try {
+      const res = await fetch(`http://localhost:4000/api/tours/${id}`)
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error?.error || "Failed to fetch tour data")
+      }
+
+      const data: Tour = await res.json()
+      setTour(data)
+    } catch (error: any) {
+      console.error("getTour error:", error.message)
+    }
+  }
+
+  useEffect(() => {
+    const idAsNumber = params.id
+    if (!isNaN(idAsNumber)) {
+      getTour(idAsNumber)
+    } else {
+      console.error("Invalid tour ID:", params.id)
+    }
+  }, [params.id])
+  
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
@@ -261,6 +188,8 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
     setLoading(false);
   };
 
+  
+
   return (
     <div className="container py-10">
       <div className="flex items-center text-sm text-muted-foreground mb-6">
@@ -299,7 +228,7 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
           <div className="grid grid-cols-2 gap-4 mb-8">
             <img
               src={tour.images[0] || "/placeholder.svg"}
-              alt={tour.title}
+              alt={tour.title || "main-image"}
               className="w-full h-80 object-cover rounded-lg"
             />
             <div className="grid grid-cols-2 gap-4">
@@ -499,7 +428,7 @@ export default function TourDetailPage({ params }: { params: { id: string } }) {
               <div>
                 {tour.discount ? (
                   <>
-                    <span className="text-3xl font-bold">${tour.discountPrice}</span>
+                    <span className="text-3xl font-bold">${tour.discount_price}</span>
                     <span className="ml-2 line-through text-muted-foreground">${tour.price}</span>
                     <Badge className="ml-2 bg-red-500">{tour.discount}% OFF</Badge>
                   </>

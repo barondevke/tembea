@@ -29,7 +29,7 @@ router.get("/summary", async (req, res) => {
           p.price,
           p.rating,
           p.discount,
-          p.featured
+          p.featured,
           (
             SELECT COUNT(*) 
             FROM reviews r 

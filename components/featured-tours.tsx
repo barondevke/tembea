@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link"
 import { MapPin } from "lucide-react"
 import { useEffect,useState } from "react"
@@ -7,73 +8,41 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 
 // Sample tour data
 
-const tours = [
-  {
-    id: 1,
-    title: "Serengeti Safari Adventure",
-    location: "Tanzania",
-    duration: "7 days",
-    price: 1899,
-    rating: 4.8,
-    reviews: 124,
-    image: "/serengeti.jpg",
-    featured: true,
-    discount: 15,
-  },
-  {
-    id: 2,
-    title: "Bali Beach Retreat",
-    location: "Indonesia",
-    duration: "10 days",
-    price: 1299,
-    rating: 4.7,
-    reviews: 98,
-    image: "/bali.jpg",
-  },
-  {
-    id: 3,
-    title: "Amazon Rainforest Expedition",
-    location: "Brazil",
-    duration: "8 days",
-    price: 1599,
-    rating: 4.6,
-    reviews: 86,
-    image: "/amazon.jpg",
-  },
-  {
-    id: 4,
-    title: "Kyoto Cultural Journey",
-    location: "Japan",
-    duration: "12 days",
-    price: 2499,
-    rating: 4.9,
-    reviews: 156,
-    image: "/kyoto.jpg",
-    featured: true,
-  },
-  {
-    id: 5,
-    title: "Santorini Island Escape",
-    location: "Greece",
-    duration: "8 days",
-    price: 1799,
-    rating: 4.7,
-    reviews: 112,
-    image: "/santorini.jpg",
-  },
-  {
-    id: 6,
-    title: "Machu Picchu Trek",
-    location: "Peru",
-    duration: "9 days",
-    price: 1999,
-    rating: 4.8,
-    reviews: 204,
-    image: "/machu-picchu-trek.jpg",
-  },
-]
+interface Tour {
+  id: number
+  title: string
+  location: string
+  duration: string
+  price: number
+  rating: number
+  reviews: number
+  image: string
+  featured?: boolean
+  discount?: number
+}
 
 export default function FeaturedTours() {
+  const [tours, setTours] = useState<Tour[]>([])
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const res = await fetch("http://localhost:4000/api/tours/summary")
+        if (!res.ok) {
+          throw new Error("Failed to fetch tours")
+        }
+        const data = await res.json()
+        console.log(data)
+        setTours(data)
+      } catch (error) {
+        console.error("Error fetching featured tours:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTours()
+  }, [])
   return (
     <section className="container py-16">
       <div className="flex flex-col md:flex-row justify-between items-center mb-10">

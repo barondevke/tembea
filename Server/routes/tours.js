@@ -65,6 +65,77 @@ router.get("/summary", async (req, res) => {
     }
   });
 
+router.get("/tours-page", async (req, res) => {
+    const conn = await dbConnection;
+  
+    // Get page & limit from query params, fallback to defaults
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+  
+    try {
+      // Get total count first
+      const [[{ total }]] = await conn.query(`SELECT COUNT(*) as total FROM products`);
+  
+      // Fetch paginated tours
+      const [tours] = await conn.query(`
+        SELECT 
+          p.id,
+          p.title,
+          p.location,
+          p.duration,
+          p.price,
+          p.rating,
+          p.discount,
+          p.featured,
+          p.category,
+          p.continent,
+          (
+            SELECT COUNT(*) 
+            FROM reviews r 
+            WHERE r.product_id = p.id
+          ) AS reviews,
+          (
+            SELECT image_url 
+            FROM product_images pi 
+            WHERE pi.product_id = p.id 
+            LIMIT 1
+          ) AS image
+        FROM products p
+        LIMIT ? OFFSET ?
+      `, [limit, offset]);
+  
+      // Format the response
+      const formatted = tours.map(tour => ({
+        id: tour.id,
+        title: tour.title,
+        location: tour.location,
+        duration: tour.duration,
+        price: tour.price,
+        rating: tour.rating,
+        reviews: tour.reviews,
+        image: tour.image || "/placeholder.jpg",
+        category: tour.category,
+        continent: tour.continent,
+        discount: tour.discount !== null ? tour.discount : undefined,
+        featured: tour.featured === 1 ? true : undefined,
+      }));
+  
+      // Send paginated response
+      res.json({
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        tours: formatted,
+      });
+  
+    } catch (err) {
+      console.error("GET /api/tours-page error:", err);
+      res.status(500).json({ error: "Could not fetch tours", details: err.message });
+    }
+  });
+  
+
 router.get("/:id", async (req, res) => {
   const tourId = req.params.id;
   const conn = await dbConnection;
@@ -101,10 +172,13 @@ router.get("/:id", async (req, res) => {
 });
 
 
+
+
+
 // POST new tour
 router.post("/", async (req, res) => {
   const {
-    title, location, duration, price, discount_price, discount, rating, description,featured,
+    title, location, duration, price, discount_price, discount, rating, description,featured,continent,category,
     reviews = [], images = [], highlights = [], included = [], notIncluded = [], itinerary = []
   } = req.body;
 
@@ -114,9 +188,9 @@ router.post("/", async (req, res) => {
     await conn.beginTransaction();
 
     const [productResult] = await conn.execute(
-      `INSERT INTO products (title, location, duration, price, discount_price, discount, rating, description,featured)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, location, duration, price, discount_price, discount, rating, description,featured]
+      `INSERT INTO products (title, location, duration, price, discount_price, discount, rating, description,featured,category,continent)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, location, duration, price, discount_price, discount, rating, description,featured,category,continent]
     );
     const productId = productResult.insertId;
 

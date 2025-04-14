@@ -167,6 +167,21 @@ const tours = [
   },
 ]
 
+interface Tour {
+  id: number
+  title: string
+  location: string
+  duration: string
+  price: number
+  rating: number
+  reviews: number
+  image: string
+  featured?: boolean
+  discount?: number
+  category: string
+  continent: string
+}
+
 // Sample locations for search
 const locations = [
   { value: "tanzania", label: "Tanzania" },
@@ -184,6 +199,41 @@ const locations = [
 ]
 
 export default function ToursPage() {
+  const [tours, setTours] = useState<Tour[]>([])
+  const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const limit = 6 // Customize how many tours per page
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch(`http://localhost:4000/api/tours/tours-page?page=${page}&limit=${limit}`)
+        if (!res.ok) {
+          throw new Error("Failed to fetch tours")
+        }
+        const data = await res.json()
+        setTours(data.tours)
+        setTotalPages(data.totalPages)
+      } catch (error) {
+        console.error("Error fetching tours:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTours()
+  }, [page])
+
+  // Example of next/previous pagination controls
+  const nextPage = () => {
+    if (page < totalPages) setPage((prev) => prev + 1)
+  }
+
+  const prevPage = () => {
+    if (page > 1) setPage((prev) => prev - 1)
+  }
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -605,85 +655,150 @@ export default function ToursPage() {
 
         {/* Main content */}
         <div className="flex-1">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Tour Packages</h1>
-            <p className="text-muted-foreground mt-2 md:mt-0">
-              Showing {filteredTours.length} of {tours.length} tours
-            </p>
-          </div>
+          {loading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+            </div>
+          )}
 
-          {filteredTours.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <h3 className="text-xl font-medium mb-2">No tours found</h3>
-              <p className="text-muted-foreground mb-4">Try adjusting your filters or search criteria</p>
-              <Button variant="outline" onClick={resetFilters}>
-                Reset Filters
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTours.map((tour) => (
-                <Card key={tour.id} className="overflow-hidden">
-                  <CardHeader className="p-0">
-                    <div className="relative">
-                      <img
-                        src={tour.image || "/placeholder.svg"}
-                        alt={tour.title}
-                        className="w-full h-56 object-cover"
-                      />
-                      {tour.featured && <Badge className="absolute top-4 left-4 bg-purple-600">Featured</Badge>}
-                      {tour.discount && (
-                        <Badge className="absolute top-4 right-4 bg-red-500">{tour.discount}% OFF</Badge>
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="flex items-center text-purple-600 mb-2">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span className="text-sm">{tour.location}</span>
-                      <span className="mx-2">•</span>
-                      <span className="text-sm">{tour.duration}</span>
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">{tour.title}</h3>
-                    <div className="flex items-center mb-4">
-                      <div className="flex items-center mr-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-4 w-4 text-yellow-500 fill-yellow-500"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                        </svg>
-                        <span className="ml-1 font-medium">{tour.rating}</span>
-                      </div>
-                      <span className="text-muted-foreground text-sm">({tour.reviews} reviews)</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-2xl font-bold">${tour.price}</span>
-                        <span className="text-muted-foreground"> / person</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-6 pt-0">
-                    <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                      <Link href={`/tours/${tour.id}`}>View Details</Link>
+          {!loading && (
+            <>
+              <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold">Tour Packages</h1>
+                <p className="text-muted-foreground mt-2 md:mt-0">
+                  Showing {filteredTours.length} of {tours.length} tours
+                </p>
+              </div>
+
+              {filteredTours.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                  <h3 className="text-xl font-medium mb-2">No tours found</h3>
+                  <p className="text-muted-foreground mb-4">Try adjusting your filters or search criteria</p>
+                  <Button variant="outline" onClick={resetFilters}>
+                    Reset Filters
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredTours.map((tour) => (
+                    <Card key={tour.id} className="overflow-hidden">
+                      <CardHeader className="p-0">
+                        <div className="relative">
+                          <img
+                            src={tour.image || "/placeholder.svg"}
+                            alt={tour.title}
+                            className="w-full h-56 object-cover"
+                          />
+                          {tour.featured && <Badge className="absolute top-4 left-4 bg-purple-600">Featured</Badge>}
+                          {tour.discount && (
+                            <Badge className="absolute top-4 right-4 bg-red-500">{tour.discount}% OFF</Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-6">
+                        <div className="flex items-center text-purple-600 mb-2">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          <span className="text-sm">{tour.location}</span>
+                          <span className="mx-2">•</span>
+                          <span className="text-sm">{tour.duration}</span>
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2">{tour.title}</h3>
+                        <div className="flex items-center mb-4">
+                          <div className="flex items-center mr-2">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="24"
+                              height="24"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-4 w-4 text-yellow-500 fill-yellow-500"
+                            >
+                              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                            </svg>
+                            <span className="ml-1 font-medium">{tour.rating}</span>
+                          </div>
+                          <span className="text-muted-foreground text-sm">({tour.reviews} reviews)</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-2xl font-bold">${tour.price}</span>
+                            <span className="text-muted-foreground"> / person</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                      <CardFooter className="p-6 pt-0">
+                        <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
+                          <Link href={`/tours/${tour.id}`}>View Details</Link>
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              )}
+              {/* Pagination controls */}
+              <div className="flex justify-center items-center mt-8 space-x-2">
+                <Button variant="outline" onClick={prevPage} disabled={page <= 1} className="flex items-center gap-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-chevron-left"
+                  >
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  Previous
+                </Button>
+
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <Button
+                      key={pageNum}
+                      variant={pageNum === page ? "default" : "outline"}
+                      className={`w-10 h-10 p-0 ${pageNum === page ? "bg-purple-600 hover:bg-purple-700" : ""}`}
+                      onClick={() => setPage(pageNum)}
+                    >
+                      {pageNum}
                     </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                  ))}
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={nextPage}
+                  disabled={page >= totalPages}
+                  className="flex items-center gap-1"
+                >
+                  Next
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-chevron-right"
+                  >
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </Button>
+              </div>
+            </>
           )}
         </div>
       </div>
     </div>
   )
 }
-

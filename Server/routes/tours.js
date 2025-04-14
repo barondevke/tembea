@@ -134,6 +134,135 @@ router.get("/tours-page", async (req, res) => {
       res.status(500).json({ error: "Could not fetch tours", details: err.message });
     }
   });
+router.get("/filter", async (req, res) => {
+    const conn = await dbConnection;
+  
+    const {
+      tour,
+      minPrice = 0,
+      maxPrice = 10000,
+      categories,
+      durations,
+      continents,
+      rating = 0,
+      sort = "recommended",
+      page = 1,
+      limit = 6,
+    } = req.query;
+  
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+  
+    try {
+      // Base WHERE clause
+      const whereClauses = [`price BETWEEN ? AND ?`, `rating >= ?`];
+      const params = [parseFloat(minPrice), parseFloat(maxPrice), parseFloat(rating)];
+  
+      // Tour name search (title or location)
+      if (tour) {
+        const q = tour.toLowerCase();
+        whereClauses.push(`(LOWER(title) LIKE ? OR LOWER(location) LIKE ?)`);
+        params.push(`%${q}%`, `%${q}%`);
+      }
+  
+      // Categories
+      if (categories) {
+        const cats = categories.split(",");
+        whereClauses.push(`category IN (${cats.map(() => "?").join(",")})`);
+        params.push(...cats);
+      }
+  
+      // Continents
+      if (continents) {
+        const conts = continents.split(",");
+        whereClauses.push(`continent IN (${conts.map(() => "?").join(",")})`);
+        params.push(...conts);
+      }
+  
+      // Duration ranges (e.g., "1-3", "4-7", "15+")
+      if (durations) {
+        const durationConditions = durations.split(",").map((range) => {
+          if (range === "15+") return `(CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) >= 15)`;
+          const [min, max] = range.split("-").map(Number);
+          return `(CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) BETWEEN ${min} AND ${max})`;
+        });
+        whereClauses.push(`(${durationConditions.join(" OR ")})`);
+      }
+  
+      // Build full WHERE clause
+      const where = whereClauses.length ? `WHERE ${whereClauses.join(" AND ")}` : "";
+  
+      // Sorting options
+      const sortMap = {
+        "price-low": "price ASC",
+        "price-high": "price DESC",
+        "rating": "rating DESC",
+        "duration-short": "CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) ASC",
+        "duration-long": "CAST(SUBSTRING_INDEX(duration, ' ', 1) AS UNSIGNED) DESC",
+        "recommended": "featured DESC, rating DESC",
+      };
+      const orderBy = `ORDER BY ${sortMap[sort] || sortMap["recommended"]}`;
+  
+      // Total count for pagination
+      const [[{ total }]] = await conn.query(
+        `SELECT COUNT(*) as total FROM products ${where}`,
+        params
+      );
+  
+      // Main query
+      const [tours] = await conn.query(
+        `
+        SELECT 
+          p.id,
+          p.title,
+          p.location,
+          p.duration,
+          p.price,
+          p.rating,
+          p.discount,
+          p.featured,
+          p.category,
+          p.continent,
+          (
+            SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id
+          ) AS reviews,
+          (
+            SELECT image_url FROM product_images pi WHERE pi.product_id = p.id LIMIT 1
+          ) AS image
+        FROM products p
+        ${where}
+        ${orderBy}
+        LIMIT ? OFFSET ?
+        `,
+        [...params, parseInt(limit), offset]
+      );
+  
+      // Format results
+      const formatted = tours.map((tour) => ({
+        id: tour.id,
+        title: tour.title,
+        location: tour.location,
+        duration: tour.duration,
+        price: tour.price,
+        rating: tour.rating,
+        reviews: tour.reviews,
+        image: tour.image || "/placeholder.jpg",
+        category: tour.category,
+        continent: tour.continent,
+        discount: tour.discount !== null ? tour.discount : undefined,
+        featured: tour.featured === 1 ? true : undefined,
+      }));
+  
+      res.json({
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        tours: formatted,
+      });
+    } catch (err) {
+      console.error("GET /api/tours/filter error:", err);
+      res.status(500).json({ error: "Filtering failed", details: err.message });
+    }
+  });  
   
 
 router.get("/:id", async (req, res) => {
@@ -253,5 +382,8 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Insert failed", details: err.message });
   }
 });
+
+
+
 
 module.exports = router;

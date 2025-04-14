@@ -14,36 +14,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function SearchForm() {
   const router = useRouter()
-  const [destination, setDestination] = useState("")
+  const [tour, setTour] = useState("")
   const [date, setDate] = useState<Date>()
   const [travelers, setTravelers] = useState("2")
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-
-    // Create search parameters
+  
     const params = new URLSearchParams()
-    if (destination) params.set("destination", destination)
-    if (date) params.set("date", date.toISOString().split("T")[0])
-    if (travelers) params.set("travelers", travelers)
+if (tour) params.set("tour", tour)
+if (date) params.set("date", date.toISOString().split("T")[0])
+if (travelers) params.set("travelers", travelers)
+router.push(`/tours?${params.toString()}`)
 
-    // Navigate to search results
-    router.push(`/tours?${params.toString()}`)
   }
-
+  
   return (
     <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
       <div className="flex-1 relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
         <Input
           type="text"
-          placeholder="Where do you want to go?"
+          placeholder="Which tour are you looking for?"
           className="pl-10 bg-white/20 border-white/20 text-white placeholder:text-white/70"
-          value={destination}
-          onChange={(e) => setDestination(e.target.value)}
+          value={tour}
+          onChange={(e) => setTour(e.target.value)}
         />
       </div>
-
+  
       <div className="md:w-[180px]">
         <Popover>
           <PopoverTrigger asChild>
@@ -60,7 +58,7 @@ export default function SearchForm() {
           </PopoverContent>
         </Popover>
       </div>
-
+  
       <div className="md:w-[150px]">
         <Select value={travelers} onValueChange={setTravelers}>
           <SelectTrigger className="bg-white/20 border-white/20 text-white">
@@ -76,11 +74,12 @@ export default function SearchForm() {
           </SelectContent>
         </Select>
       </div>
-
+  
       <Button type="submit" className="bg-purple-600 hover:bg-purple-700 md:w-[120px]">
         Search
       </Button>
     </form>
   )
+  
 }
 

@@ -1,82 +1,146 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 // Fix the import path - remove the .tsx extension
-import { useAuth } from "@/lib/auth"
-import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/lib/auth";
+import { useToast } from "@/components/ui/use-toast";
+
+import axios from "axios";
+import { Cookies } from "react-cookie";
+
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/userSlicer";
+import { AppDispatch } from "@/redux/store";
 
 export default function SignInPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const { signIn } = useAuth()
-  const router = useRouter()
-  const { toast } = useToast()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const cookie = new Cookies();
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  const defaultSignIn = async () => {
+    try {
+      const payload = { email, password };
+      const response = await axios.post(
+        "http://localhost:4000/api/user/sign-in",
+        payload
+      );
+      const res = response.data;
+      console.log(res)
+      
+      if (!res.proceed) {
+        throw new Error(res.message);
+      }
+  
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 7);
+  
+      cookie.set("user_id", res.data.id, {
+        expires: expirationDate,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+  
+      cookie.set("token", res.data.token, {
+        expires: expirationDate,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+      });
+  
+      dispatch(setUser(res.data));
+  
+      console.log('User signed in'); // Check if this is reached
+    } catch (error:unknown) {
+      if (error instanceof Error) {
+        console.error("Error during sign-in:", error.message); // Type-safe way of accessing error.message
+      } else {
+        console.error("An unknown error occurred during sign-in.");
+      }
+
+      
+    }
+  };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
       // In a real app, you would validate credentials here
-      await signIn()
-      toast({
+      await defaultSignIn();
+      
+      /*toast({
         title: "Sign in successful",
         description: "Welcome back to Tembea!",
-      })
-      router.push("/")
+      });*/
+      console.log("Redirecting to home")
+      router.replace("/");
     } catch (error) {
       toast({
         title: "Sign in failed",
         description: "Please check your credentials and try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await signIn()
+      await signIn();
       toast({
         title: "Sign in successful",
         description: "Welcome back to Tembea!",
-      })
-      router.push("/")
+      });
+      router.push("/");
     } catch (error) {
       toast({
         title: "Google sign in failed",
         description: "An error occurred during sign in. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="container flex items-center justify-center py-20">
       <div className="mx-auto w-full max-w-md space-y-8">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Welcome back</h1>
-          <p className="mt-2 text-muted-foreground">Sign in to your Tembea account</p>
+          <p className="mt-2 text-muted-foreground">
+            Sign in to your Tembea account
+          </p>
         </div>
 
         <div className="space-y-6">
-          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading}>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -103,7 +167,9 @@ export default function SignInPage() {
               <Separator className="w-full" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
 
@@ -122,7 +188,10 @@ export default function SignInPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password" className="text-sm text-purple-600 hover:text-purple-700">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-purple-600 hover:text-purple-700"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -147,24 +216,32 @@ export default function SignInPage() {
                   ) : (
                     <Eye className="h-4 w-4 text-muted-foreground" />
                   )}
-                  <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                  <span className="sr-only">
+                    {showPassword ? "Hide password" : "Show password"}
+                  </span>
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full bg-purple-600 hover:bg-purple-700"
+              disabled={isLoading}
+            >
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
           <div className="text-center text-sm">
             Don't have an account?{" "}
-            <Link href="/sign-up" className="text-purple-600 hover:text-purple-700">
+            <Link
+              href="/sign-up"
+              className="text-purple-600 hover:text-purple-700"
+            >
               Sign up
             </Link>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

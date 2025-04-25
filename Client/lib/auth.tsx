@@ -2,6 +2,9 @@
 
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
+import { useDispatch } from "react-redux"
+import { setUser,clearUser } from "@/redux/userSlicer"
+import { useRouter } from "next/navigation"
 
 type User = {
   id: string
@@ -27,6 +30,8 @@ const AuthContext = createContext<AuthContextType>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const dispatch = useDispatch()
+  const router = useRouter()
 
   useEffect(() => {
     // Check if user is stored in localStorage
@@ -60,12 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = () => {
-    setUser(null)
-    try {
-      localStorage.removeItem("tembea-user")
-    } catch (error) {
-      console.error("Error removing from localStorage:", error)
-    }
+    dispatch(clearUser())
+    router.replace("/sign-in") // Redirect to sign-in page after logout
   }
 
   return <AuthContext.Provider value={{ user, signIn, signOut, loading }}>{children}</AuthContext.Provider>

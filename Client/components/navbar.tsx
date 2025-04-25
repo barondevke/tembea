@@ -3,17 +3,27 @@
 import Link from "next/link"
 import { Menu } from "lucide-react"
 import { useState } from "react"
-
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 // Fix the import path - remove the .tsx extension
 import { useAuth } from "@/lib/auth"
-
+import { useSelector, useDispatch } from "react-redux"
+import { RootState } from "@/redux/store"
+import { clearUser } from "@/redux/userSlicer"
 export default function Navbar() {
-  const { user, signIn, signOut } = useAuth()
+  const user = useSelector((state: RootState) => state.user)
+  
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+  const dispatch = useDispatch()
+  const router = useRouter()
+
+  const signOut = () => {
+    dispatch(clearUser())
+    router.replace("/sign-in")
+  }
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
       <div className="container flex h-16 items-center justify-between">
@@ -106,11 +116,11 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {user ? (
+          {user.id? (
             <div className="flex items-center gap-4">
               <Link href="/profile">
                 <Avatar>
-                  <AvatarImage src={user.image || ""} alt={user.name || "User"} />
+                  <AvatarImage src={"/profile.jpg"} alt={user.name || "User"} />
                   <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
                 </Avatar>
               </Link>

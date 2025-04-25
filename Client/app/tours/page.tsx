@@ -185,17 +185,8 @@ interface Tour {
 // Sample locations for search
 const locations = [
   { value: "tanzania", label: "Tanzania" },
-  { value: "indonesia", label: "Indonesia" },
-  { value: "brazil", label: "Brazil" },
-  { value: "japan", label: "Japan" },
-  { value: "greece", label: "Greece" },
-  { value: "peru", label: "Peru" },
-  { value: "france", label: "France" },
-  { value: "maldives", label: "Maldives" },
-  { value: "iceland", label: "Iceland" },
-  { value: "egypt", label: "Egypt" },
-  { value: "new-zealand", label: "New Zealand" },
-  { value: "canada", label: "Canada" },
+  { value: "kenya", label: "Kenya" }
+  
 ]
 
 export default function ToursPage() {
@@ -203,16 +194,40 @@ export default function ToursPage() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
+  const [selectedDurations, setSelectedDurations] = useState<string[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [selectedContinents, setSelectedContinents] = useState<string[]>([])
+  const [minRating, setMinRating] = useState<number>(0)
+  const [sortOption, setSortOption] = useState("recommended")
+  const [openLocationPopover, setOpenLocationPopover] = useState(false)
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
   const limit = 6 // Customize how many tours per page
 
   useEffect(() => {
     const fetchTours = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`http://localhost:4000/api/tours/tours-page?page=${page}&limit=${limit}`)
-        if (!res.ok) {
-          throw new Error("Failed to fetch tours")
-        }
+        const params = new URLSearchParams()
+        params.set("page", page.toString())
+        params.set("limit", limit.toString())
+
+        if (searchQuery) params.set("tour", searchQuery)
+        if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString())
+        if (priceRange[1] < 10000) params.set("maxPrice", priceRange[1].toString())
+        if (selectedDurations.length > 0) params.set("durations", selectedDurations.join(","))
+        if (selectedCategories.length > 0) params.set("categories", selectedCategories.join(","))
+        if (selectedContinents.length > 0) params.set("continents", selectedContinents.join(","))
+        if (minRating > 0) params.set("rating", minRating.toString())
+        if (sortOption !== "recommended") params.set("sort", sortOption)
+
+        const res = await fetch(`http://localhost:4000/api/tours/filter?${params.toString()}`)
+        if (!res.ok) throw new Error("Failed to fetch tours")
+
         const data = await res.json()
         setTours(data.tours)
         setTotalPages(data.totalPages)
@@ -224,7 +239,53 @@ export default function ToursPage() {
     }
 
     fetchTours()
-  }, [page])
+  }, [
+    page,
+    searchQuery,
+    priceRange,
+    selectedDurations,
+    selectedCategories,
+    selectedContinents,
+    minRating,
+    sortOption,
+  ])
+
+  useEffect(() => {
+    const destination = searchParams.get("destination")
+    if (destination) {
+      setSearchQuery(destination)
+      const matched = locations.find((l) => l.label.toLowerCase() === destination.toLowerCase())
+      if (matched) setSelectedLocation(matched.value)
+    }
+
+    const getParam = (key: string) => searchParams.get(key)
+    const parseList = (key: string) => (getParam(key) ? getParam(key)!.split(",") : [])
+
+    setPriceRange([
+      Number(getParam("minPrice") ?? 0),
+      Number(getParam("maxPrice") ?? 10000),
+    ])
+    setSelectedCategories(parseList("categories"))
+    setSelectedDurations(parseList("durations"))
+    setSelectedContinents(parseList("continents"))
+    setMinRating(Number(getParam("rating") ?? 0))
+    setSortOption(getParam("sort") ?? "recommended")
+  }, [searchParams])
+
+  const applyFilters = () => {
+    const params = new URLSearchParams()
+    if (searchQuery) params.set("destination", searchQuery)
+    if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString())
+    if (priceRange[1] < 10000) params.set("maxPrice", priceRange[1].toString())
+    if (selectedDurations.length > 0) params.set("durations", selectedDurations.join(","))
+    if (selectedCategories.length > 0) params.set("categories", selectedCategories.join(","))
+    if (selectedContinents.length > 0) params.set("continents", selectedContinents.join(","))
+    if (minRating > 0) params.set("rating", minRating.toString())
+    if (sortOption !== "recommended") params.set("sort", sortOption)
+
+    router.push(`/tours?${params.toString()}`)
+    setPage(1) // reset pagination
+  }
 
   // Example of next/previous pagination controls
   const nextPage = () => {
@@ -234,183 +295,8 @@ export default function ToursPage() {
   const prevPage = () => {
     if (page > 1) setPage((prev) => prev - 1)
   }
-  const searchParams = useSearchParams()
-  const router = useRouter()
-
-  // Filter states
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 4000])
-  const [selectedDurations, setSelectedDurations] = useState<string[]>([])
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
-  const [selectedContinents, setSelectedContinents] = useState<string[]>([])
-  const [minRating, setMinRating] = useState<number>(0)
-  const [sortOption, setSortOption] = useState("recommended")
-  const [openLocationPopover, setOpenLocationPopover] = useState(false)
-
-  // Filtered tours
-  const [filteredTours, setFilteredTours] = useState(tours)
-
-  // Initialize filters from URL params
-  useEffect(() => {
-    const destination = searchParams.get("destination")
-    if (destination) {
-      setSearchQuery(destination)
-      const matchedLocation = locations.find((loc) => loc.label.toLowerCase() === destination.toLowerCase())
-      if (matchedLocation) {
-        setSelectedLocation(matchedLocation.value)
-      }
-    }
-
-    const minPrice = searchParams.get("minPrice")
-    const maxPrice = searchParams.get("maxPrice")
-    if (minPrice && maxPrice) {
-      setPriceRange([Number(minPrice), Number(maxPrice)])
-    }
-
-    const categories = searchParams.get("categories")
-    if (categories) {
-      setSelectedCategories(categories.split(","))
-    }
-
-    const durations = searchParams.get("durations")
-    if (durations) {
-      setSelectedDurations(durations.split(","))
-    }
-
-    const continents = searchParams.get("continents")
-    if (continents) {
-      setSelectedContinents(continents.split(","))
-    }
-
-    const rating = searchParams.get("rating")
-    if (rating) {
-      setMinRating(Number(rating))
-    }
-
-    const sort = searchParams.get("sort")
-    if (sort) {
-      setSortOption(sort)
-    }
-  }, [searchParams])
-
-  // Apply filters
-  useEffect(() => {
-    let filtered = [...tours]
-
-    // Search query filter
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (tour) =>
-          tour.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          tour.location.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    }
-
-    // Location filter
-    if (selectedLocation) {
-      const locationLabel = locations.find((loc) => loc.value === selectedLocation)?.label
-      if (locationLabel) {
-        filtered = filtered.filter((tour) => tour.location.toLowerCase() === locationLabel.toLowerCase())
-      }
-    }
-
-    // Price range filter
-    filtered = filtered.filter((tour) => tour.price >= priceRange[0] && tour.price <= priceRange[1])
-
-    // Duration filter
-    if (selectedDurations.length > 0) {
-      filtered = filtered.filter((tour) => {
-        const days = Number.parseInt(tour.duration.split(" ")[0])
-
-        return (
-          (selectedDurations.includes("1-3") && days >= 1 && days <= 3) ||
-          (selectedDurations.includes("4-7") && days >= 4 && days <= 7) ||
-          (selectedDurations.includes("8-14") && days >= 8 && days <= 14) ||
-          (selectedDurations.includes("15+") && days >= 15)
-        )
-      })
-    }
-
-    // Category filter
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter((tour) => selectedCategories.includes(tour.category.toLowerCase()))
-    }
-
-    // Continent filter
-    if (selectedContinents.length > 0) {
-      filtered = filtered.filter((tour) => selectedContinents.includes(tour.continent.toLowerCase()))
-    }
-
-    // Rating filter
-    if (minRating > 0) {
-      filtered = filtered.filter((tour) => tour.rating >= minRating)
-    }
-
-    // Apply sorting
-    switch (sortOption) {
-      case "price-low":
-        filtered.sort((a, b) => a.price - b.price)
-        break
-      case "price-high":
-        filtered.sort((a, b) => b.price - a.price)
-        break
-      case "rating":
-        filtered.sort((a, b) => b.rating - a.rating)
-        break
-      case "duration-short":
-        filtered.sort((a, b) => {
-          const aDays = Number.parseInt(a.duration.split(" ")[0])
-          const bDays = Number.parseInt(b.duration.split(" ")[0])
-          return aDays - bDays
-        })
-        break
-      case "duration-long":
-        filtered.sort((a, b) => {
-          const aDays = Number.parseInt(a.duration.split(" ")[0])
-          const bDays = Number.parseInt(b.duration.split(" ")[0])
-          return bDays - aDays
-        })
-        break
-      default: // recommended
-        filtered.sort((a, b) => {
-          // Featured tours first, then by rating
-          if (a.featured && !b.featured) return -1
-          if (!a.featured && b.featured) return 1
-          return b.rating - a.rating
-        })
-    }
-
-    setFilteredTours(filtered)
-  }, [
-    searchQuery,
-    selectedLocation,
-    priceRange,
-    selectedDurations,
-    selectedCategories,
-    selectedContinents,
-    minRating,
-    sortOption,
-  ])
-
-  // Update URL with filters
-  const applyFilters = () => {
-    const params = new URLSearchParams()
-
-    if (searchQuery) params.set("destination", searchQuery)
-    if (priceRange[0] > 0) params.set("minPrice", priceRange[0].toString())
-    if (priceRange[1] < 4000) params.set("maxPrice", priceRange[1].toString())
-    if (selectedDurations.length > 0) params.set("durations", selectedDurations.join(","))
-    if (selectedCategories.length > 0) params.set("categories", selectedCategories.join(","))
-    if (selectedContinents.length > 0) params.set("continents", selectedContinents.join(","))
-    if (minRating > 0) params.set("rating", minRating.toString())
-    if (sortOption !== "recommended") params.set("sort", sortOption)
-
-    router.push(`/tours?${params.toString()}`)
-  }
-
   // Reset all filters
-  const resetFilters = () => {
+const resetFilters = () => {
     setSearchQuery("")
     setSelectedLocation(null)
     setPriceRange([0, 4000])
@@ -449,7 +335,7 @@ export default function ToursPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
                     type="text"
-                    placeholder="Search destinations..."
+                    placeholder="Search tours..."
                     className="pl-10 pr-4"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -532,21 +418,37 @@ export default function ToursPage() {
             <div className="space-y-6">
               <div>
                 <h4 className="font-medium mb-3">Price Range</h4>
-                <div className="px-2">
-                  <Slider
-                    defaultValue={[0, 4000]}
-                    min={0}
-                    max={4000}
-                    step={100}
-                    value={priceRange}
-                    onValueChange={(value) => setPriceRange(value as [number, number])}
-                    className="mb-6"
-                  />
-                  <div className="flex items-center justify-between">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}</span>
-                  </div>
-                </div>
+                <div className="px-2 space-y-4">
+  <div className="flex flex-col space-y-2">
+    <label htmlFor="minPrice" className="text-sm font-medium">Min Price ($)</label>
+    <Input
+      id="minPrice"
+      type="number"
+      min={0}
+      max={10000}
+      value={priceRange[0]}
+      onChange={(e) => {
+        const value = Math.min(Number(e.target.value), priceRange[1])
+        setPriceRange([value, priceRange[1]])
+      }}
+    />
+  </div>
+  <div className="flex flex-col space-y-2">
+    <label htmlFor="maxPrice" className="text-sm font-medium">Max Price ($)</label>
+    <Input
+      id="maxPrice"
+      type="number"
+      min={priceRange[0]}
+      max={10000}
+      value={priceRange[1]}
+      onChange={(e) => {
+        const value = Math.max(Number(e.target.value), priceRange[0])
+        setPriceRange([priceRange[0], value])
+      }}
+    />
+  </div>
+</div>
+
               </div>
 
               <div>
@@ -665,12 +567,10 @@ export default function ToursPage() {
             <>
               <div className="flex flex-col md:flex-row justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold">Tour Packages</h1>
-                <p className="text-muted-foreground mt-2 md:mt-0">
-                  Showing {filteredTours.length} of {tours.length} tours
-                </p>
+                
               </div>
 
-              {filteredTours.length === 0 ? (
+              {tours.length === 0 ? (
                 <div className="text-center py-12 bg-gray-50 rounded-lg">
                   <h3 className="text-xl font-medium mb-2">No tours found</h3>
                   <p className="text-muted-foreground mb-4">Try adjusting your filters or search criteria</p>
@@ -680,7 +580,7 @@ export default function ToursPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredTours.map((tour) => (
+                  {tours.map((tour) => (
                     <Card key={tour.id} className="overflow-hidden">
                       <CardHeader className="p-0">
                         <div className="relative">

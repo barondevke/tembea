@@ -4,6 +4,7 @@ const stripe = require('stripe')('sk_test_51R7Y9AB6OLclKHp6y0Z7Zpx1TXlpJAXLPLvoe
 const toursRoutes = require("./routes/tours");
 const userRoutes = require("./routes/user")
 const wishlistRoutes = require("./routes/wishlist")
+const bookingsRoutes = require("./routes/bookings")
 const app = express();
 
 app.use(cors({ origin: ["http://localhost:3001","http://localhost:3000"], credentials: true }));
@@ -15,6 +16,8 @@ app.use("/api/tours", toursRoutes);
 app.use("/api/user", userRoutes)
 
 app.use("/api/wishlist",wishlistRoutes)
+app.use("/api/bookings",bookingsRoutes)
+
 
 app.post('/create-checkout-session', async (req, res) => {
   try {

@@ -12,11 +12,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import { RootState } from "@/redux/store"
+import { useSelector, useDispatch } from "react-redux"
+
 // Fix the import path - remove the .tsx extension
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import {Tour} from "@/app/tours/[id]/lib"
-// This would typically come from a database
+import axios from "axios"
 
 
 
@@ -66,7 +69,8 @@ export default async function TourDetailPage({ params }: { params: { id: number 
     }
   }, [params.id])
   
-  const { user } = useAuth()
+  const user = useSelector((state: RootState) => state.user)
+  
   const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false);
@@ -105,32 +109,48 @@ export default async function TourDetailPage({ params }: { params: { id: number 
     router.push(`/booking/success?tourId=${tour.id}&date=${selectedDate}&travelers=${selectedTravelers}`)
   }
   
-  const handleAddToWishlist = () => {
-    if (!user) {
+  const handleAddToWishlist = async () => {
+    if (!user.name) {
       toast({
         title: "Sign in required",
         description: "Please sign in to add this tour to your wishlist",
         variant: "destructive",
-      })
-      router.push("/sign-in")
-      return
+      });
+      router.push("/sign-in");
+      return;
     }
-
-    setIsAddingToWishlist(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsInWishlist(!isInWishlist)
-      setIsAddingToWishlist(false)
-
+  
+    setIsAddingToWishlist(true);
+  
+    try {
+      const response = await axios.post("http://localhost:4000/api/wishlist/add", {
+        user_id: user.id,         // Make sure 'user.id' is correct
+        product_id: tour.id,       // Assuming 'tour.id' is the current tour
+      });
+  
       toast({
-        title: isInWishlist ? "Removed from wishlist" : "Added to wishlist",
-        description: isInWishlist
-          ? "This tour has been removed from your wishlist"
-          : "This tour has been added to your wishlist",
-      })
-    }, 1000)
-  }
+        title: "Added to wishlist",
+        description: "This tour has been added to your wishlist",
+      });
+      setIsInWishlist(true);
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        toast({
+          title: "Already in wishlist",
+          description: "This tour is already in your wishlist",
+        });
+        setIsInWishlist(true);
+      } else {
+        toast({
+          title: "Error",
+          description: "Something went wrong while adding to wishlist",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsAddingToWishlist(false);
+    }
+  };
 
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault()

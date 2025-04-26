@@ -12,7 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/lib/auth"
 import { RootState } from "@/redux/store"
 import { useSelector, useDispatch } from "react-redux"
-
+import { useState } from "react"
+import axios from "axios"
 // Sample booking data
 const bookings = [
   {
@@ -48,27 +49,12 @@ const bookings = [
 ]
 
 // Sample wishlist data
-const wishlist = [
-  {
-    id: 8,
-    title: "Maldives Luxury Getaway",
-    location: "Maldives",
-    duration: "7 days",
-    price: 3299,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: 9,
-    title: "Iceland Northern Lights Tour",
-    location: "Iceland",
-    duration: "6 days",
-    price: 1899,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-]
+
 
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.user)
+   const [wishlist, setWishlist] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   console.log(user)
   const router = useRouter()
 
@@ -81,6 +67,39 @@ export default function ProfilePage() {
   if (!user?.name) {
     return null // Prevent render during redirect
   }
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!user) return; // Make sure user is logged in
+  
+      try {
+        const response = await axios.get(`http://localhost:4000/api/wishlist/user/${user.id}`);
+        const productIds = response.data.wishlist.map((item: any) => item.product_id);
+  
+        // OPTIONAL: Fetch full product details if you only have product IDs
+        const productDetails = await Promise.all(
+          productIds.map(async (productId: number) => {
+            // Example: get details from your product API
+            const productResponse = await axios.get(`http://localhost:4000/api/tours/${productId}`);
+            return productResponse.data;
+          })
+        );
+  
+        setWishlist(productDetails);
+      } catch (error) {
+        console.error("Error fetching wishlist:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchWishlist();
+  }, [user]);
+  
+  if (loading) {
+    return <div>Loading wishlist...</div>;
+  }
+  
 
       return (
         <div className="container py-10">
@@ -262,7 +281,7 @@ export default function ProfilePage() {
                       <Card key={item.id}>
                         <CardHeader className="p-0">
                           <img
-                            src={item.image || "/placeholder.svg"}
+                            src={item.images[0] || "/placeholder.svg"}
                             alt={item.title}
                             className="w-full h-40 object-cover rounded-t-lg"
                           />

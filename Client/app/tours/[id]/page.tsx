@@ -5,6 +5,8 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Calendar, Clock, MapPin, Users, ChevronRight, Star, Heart } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -84,30 +86,74 @@ export default async function TourDetailPage({ params }: { params: { id: number 
   const [selectedTravelers, setSelectedTravelers] = useState(2)
   const [selectedDate, setSelectedDate] = useState<string>("")
 
-  const handleBookNow = () => {
-   if (!user) {
+  function calculateEndDate(startDateStr: string, durationStr: string): string {
+    const startDate = new Date(startDateStr); // Convert string to Date object
+    
+    // Extract the number of days from the duration string (e.g., "7 days" → 7)
+    const daysMatch = durationStr.match(/\d+/);
+    if (!daysMatch) {
+      throw new Error("Invalid duration format");
+    }
+    const numberOfDays = parseInt(daysMatch[0], 10);
+  
+    // Add the number of days to the start date
+    startDate.setDate(startDate.getDate() + numberOfDays);
+  
+    // Format the new end date as "YYYY-MM-DD" for database or API use
+    const year = startDate.getFullYear();
+    const month = String(startDate.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const day = String(startDate.getDate()).padStart(2, "0");
+  
+    return `${year}-${month}-${day}`;
+  }
+
+  function calculateTotalPrice(tourPrice: number | undefined | null, travelers: number): number {
+    if (!tourPrice) return 0;
+    return tourPrice * travelers;
+  }
+  
+  
+  const handleBookNow = async () => {
+    if (!user.name) {
       toast({
         title: "Sign in required",
         description: "Please sign in to book this tour",
         variant: "destructive",
-      })
-      router.push("/sign-in")
-      return
+      });
+      router.push("/sign-in");
+      return;
     }
-
+  
     if (!selectedDate) {
       toast({
         title: "Date required",
         description: "Please select a departure date",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
-
-    // In a real app, this would send the booking data to the server
-    // For demo purposes, we'll just navigate to a success page
-    router.push(`/booking/success?tourId=${tour.id}&date=${selectedDate}&travelers=${selectedTravelers}`)
-  }
+  
+    try {
+      const response = await axios.post("http://localhost:4000/api/bookings/create", {
+        user_id: user.id,
+        product_id: tour.id,
+        start_date: selectedDate,
+        end_date: calculateEndDate(selectedDate, tour.duration || "0 days"), // Assume you calculate it
+        travelers: selectedTravelers,
+        price: calculateTotalPrice(tour.price,selectedTravelers) // You can calculate based on travelers
+      });
+  
+      router.push(`/booking/success?bookingId=${response.data.booking_id}`);
+    } catch (error) {
+      console.error("Booking error:", error);
+      toast({
+        title: "Booking failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+  
   
   const handleAddToWishlist = async () => {
     if (!user.name) {
@@ -460,21 +506,40 @@ export default async function TourDetailPage({ params }: { params: { id: number 
             </div>
 
             <div className="space-y-6 mb-6">
-              <div>
-                <label className="font-medium mb-2 block">Select Date</label>
-                <select
-                  className="w-full p-2 border rounded-md"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                >
-                  <option value="">Select a departure date</option>
-                  <option value="2023-09-15">September 15, 2023</option>
-                  <option value="2023-10-05">October 5, 2023</option>
-                  <option value="2023-10-20">October 20, 2023</option>
-                  <option value="2023-11-10">November 10, 2023</option>
-                  <option value="2023-12-01">December 1, 2023</option>
-                </select>
-              </div>
+
+            <div className="md">
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button
+        variant="outline"
+        className=" w-full justify-start text-left font-big bg-white/20 border-white/10 text-black"
+      >
+        <Calendar className="mr-2 h-4 w-4" />
+        {selectedDate
+          ? new Date(selectedDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+          : "Select date"}
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-auto p-0 mt-2" align="start">
+    <CalendarComponent
+  mode="single"
+  selected={selectedDate ? new Date(selectedDate) : undefined}
+  onSelect={(date) => {
+    if (date) {
+      // Fix timezone issue by setting time to midnight in local time
+      const localDate = new Date(date);
+      localDate.setHours(12, 0, 0, 0); // Ensures it stays on the correct day
+      setSelectedDate(localDate.toISOString().split('T')[0]); // Keep YYYY-MM-DD format
+    }
+  }}
+  initialFocus
+  disabled={(date) => date < new Date()} // Disable past dates
+/>
+
+    </PopoverContent>
+  </Popover>
+</div>
+
 
               <div>
                 <label className="font-medium mb-2 block">Number of Travelers</label>
@@ -491,6 +556,7 @@ export default async function TourDetailPage({ params }: { params: { id: number 
                   <option value="6">6+ Travelers (Group)</option>
                 </select>
               </div>
+               
 
               <div className="flex items-center">
                 <Calendar className="h-5 w-5 text-purple-600 mr-3" />
@@ -510,7 +576,7 @@ export default async function TourDetailPage({ params }: { params: { id: number 
             </div>
 
             <div className="space-y-3">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleBuyNow}>
+              <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleBookNow}>
                 Book Now
               </Button>
 

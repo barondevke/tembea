@@ -7,14 +7,14 @@ const wishlistRoutes = require("./routes/wishlist")
 const bookingsRoutes = require("./routes/bookings")
 const dbConnection = require("./db")
 const app = express();
-const endpointSecret = "whsec_acfafa1002acd87eb9a3926f82764caa91c3b33e5f63937839356c363e74543b"
-  
+ 
 app.use(cors({ origin: ["http://localhost:3001","http://localhost:3000"], credentials: true }));
 
 
 app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
   const sig = request.headers['stripe-signature'];
-  const endpointSecret = "whsec_acfafa1002acd87eb9a3926f82764caa91c3b33e5f63937839356c363e74543b"
+const endpointSecret = "whsec_32ceab3cdb3dfb3177b4f2d5a2e1651d5adc9c664417453f18e7e2184ac7f4c3"
+
   
   let event;
 

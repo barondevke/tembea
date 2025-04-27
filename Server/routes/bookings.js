@@ -27,5 +27,44 @@ router.post("/create", async (req, res) => {
       return res.status(500).json({ message: "Server error" });
     }
   });
+
+  router.get("/:id", async (req, res) => {
+    const bookingId = req.params.id;
+  
+    try {
+      // Query the booking
+      const conn = await dbConnection;
+      const [bookingRows] = await conn.query(
+        "SELECT * FROM bookings WHERE id = ?",
+        [bookingId]
+      );
+  
+      if (bookingRows.length === 0) {
+        return res.status(404).json({ error: "Booking not found" });
+      }
+  
+      const booking = bookingRows[0];
+      let tour = null;
+      try {
+        const tourResponse = await fetch(`http://localhost:4000/api/tours/${booking.product_id}`);
+        if (tourResponse.ok) {
+          tour = await tourResponse.json();
+        } else {
+          console.error("Failed to fetch tour details:", tourResponse.statusText);
+        }
+      } catch (tourError) {
+        console.error("Error fetching tour details:", tourError.message);
+      }
+  
+      // Step 3: Respond with combined booking + tour
+      res.json({
+        ...booking,
+        tour,
+      });
+    } catch (error) {
+      console.error("Error retrieving booking:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
   
 module.exports = router; 

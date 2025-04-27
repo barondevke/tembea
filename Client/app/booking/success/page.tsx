@@ -9,18 +9,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
 // This would typically come from a database
-const getTour = (id: string) => {
-  return {
-    id: Number.parseInt(id),
-    title: "Serengeti Safari Adventure",
-    location: "Tanzania",
-    duration: "7 days",
-    price: 1899,
-    discountPrice: 1614,
-    discount: 15,
-    image: "/placeholder.svg?height=400&width=600",
-  }
-}
 
 export default function BookingSuccessPage() {
   const searchParams = useSearchParams()
@@ -33,24 +21,28 @@ export default function BookingSuccessPage() {
   })
 
   useEffect(() => {
-    const tourId = searchParams.get("tourId") || "1"
-    const date = searchParams.get("date") || ""
-    const travelers = Number(searchParams.get("travelers") || "2")
-
-    // Generate a random booking ID
-    const bookingId = `B${Math.floor(100000 + Math.random() * 900000)}`
-
-    const tour = getTour(tourId)
-
-    setBookingDetails({
-      tourId,
-      date,
-      travelers,
-      bookingId,
-      tour,
-    })
-  }, [searchParams])
-
+    const bookingId = searchParams.get("bookingId");
+    if (!bookingId) return;
+  
+    const fetchBookingDetails = async () => {
+      try {
+        const response = await fetch(`http://localhost:4000/api/bookings/${bookingId}`);
+        const data = await response.json();
+  
+        setBookingDetails({
+          tourId: data.product_id,
+          date: data.start_date,
+          travelers: data.travelers,
+          bookingId: data.id,
+          tour: data.tour // OR fetch real tour data
+        });
+      } catch (error) {
+        console.error("Failed to fetch booking details:", error);
+      }
+    };
+  
+    fetchBookingDetails();
+  }, [searchParams]);
   if (!bookingDetails.tour) {
     return <div className="container py-20 text-center">Loading booking details...</div>
   }
@@ -66,10 +58,12 @@ export default function BookingSuccessPage() {
   }
 
   const calculateTotal = () => {
-    const basePrice = bookingDetails.tour.discount ? bookingDetails.tour.discountPrice : bookingDetails.tour.price
-
-    return basePrice * bookingDetails.travelers
-  }
+    const basePrice =parseInt(bookingDetails.tour.discount_price) ?? parseInt(bookingDetails.tour.price);
+  
+    console.log(basePrice);
+    return basePrice * bookingDetails.travelers;
+  };
+  
 
   return (
     <div className="container py-16">
@@ -116,11 +110,12 @@ export default function BookingSuccessPage() {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row gap-6">
-              <img
-                src="/serengeti-1.jpg"
-                alt={bookingDetails.tour.title}
-                className="w-full md:w-1/3 h-48 object-cover rounded-lg"
-              />
+            <img
+  src={bookingDetails.tour.images[0]}
+  alt={bookingDetails.tour.title}
+  className="w-full md:w-1/3 h-48 object-cover rounded-lg"
+/>
+
               <div className="flex-1">
                 <h3 className="text-xl font-semibold mb-2">{bookingDetails.tour.title}</h3>
                 <div className="space-y-2 mb-4">
@@ -143,7 +138,7 @@ export default function BookingSuccessPage() {
                   <div className="flex justify-between mb-2">
                     <span>Price per person:</span>
                     <span>
-                      ${bookingDetails.tour.discount ? bookingDetails.tour.discountPrice : bookingDetails.tour.price}
+                      ${parseInt(bookingDetails.tour.discount) ? parseInt(bookingDetails.tour.discount_price) : parseInt(bookingDetails.tour.price)}
                     </span>
                   </div>
                   <div className="flex justify-between mb-2">

@@ -134,16 +134,35 @@ export default async function TourDetailPage({ params }: { params: { id: number 
     }
   
     try {
-      const response = await axios.post("http://localhost:4000/api/bookings/create", {
+      // 1. Create a booking
+      const bookingResponse = await axios.post("http://localhost:4000/api/bookings/create", {
         user_id: user.id,
         product_id: tour.id,
         start_date: selectedDate,
-        end_date: calculateEndDate(selectedDate, tour.duration || "0 days"), // Assume you calculate it
+        end_date: calculateEndDate(selectedDate, tour.duration || "0 days"),
         travelers: selectedTravelers,
-        price: calculateTotalPrice(tour.price,selectedTravelers) // You can calculate based on travelers
+        price: calculateTotalPrice(tour.price, selectedTravelers),
       });
   
-      router.push(`/booking/success?bookingId=${response.data.booking_id}`);
+      const bookingId = bookingResponse.data.booking_id;
+  
+      // 2. Create Stripe checkout session
+      const stripeResponse = await axios.post("http://localhost:4000/create-checkout-session", {
+        booking_id: bookingId,
+        user_id: user.id,
+        amount: calculateTotalPrice(tour.price, selectedTravelers),
+        selectedTravelers: selectedTravelers,
+      });
+  
+      const { url } = stripeResponse.data;
+  
+      // 3. Redirect user to Stripe Checkout
+      if (url) {
+        window.location.href = url;
+      } else {
+        throw new Error("Stripe session creation failed");
+      }
+  
     } catch (error) {
       console.error("Booking error:", error);
       toast({
@@ -153,6 +172,7 @@ export default async function TourDetailPage({ params }: { params: { id: number 
       });
     }
   };
+  
   
   
   const handleAddToWishlist = async () => {

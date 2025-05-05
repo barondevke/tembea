@@ -25,7 +25,7 @@ import axios from "axios"
 
 
 
-export default async function TourDetailPage({ params }: { params: { id: number } }) {
+export default function TourDetailPage({ params }: { params: { id: number } }) {
   const tourDefault : Tour = {
     id: null,
     title: null,
@@ -477,8 +477,8 @@ export default async function TourDetailPage({ params }: { params: { id: number 
                   </form>
                 </div>
 
-                {tour.reviews.map((review) => (
-                  <div key={review.id} className="border-b pb-6 last:border-0">
+                {tour.reviews.map((review,index) => (
+                  <div key={review.id || index} className="border-b pb-6 last:border-0">
                     <div className="flex items-start gap-4">
                       <img
                         src={review.avatar || "/placeholder.svg"}

@@ -14,72 +14,32 @@ import { RootState } from "@/redux/store"
 import { useSelector, useDispatch } from "react-redux"
 import { useState } from "react"
 import axios from "axios"
-// Sample booking data
-const bookings = [
-  {
-    id: "B12345",
-    tourName: "Serengeti Safari Adventure",
-    location: "Tanzania",
-    startDate: "Sep 15, 2023",
-    endDate: "Sep 22, 2023",
-    status: "Completed",
-    price: 1899,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: "B12346",
-    tourName: "Bali Beach Retreat",
-    location: "Indonesia",
-    startDate: "Nov 10, 2023",
-    endDate: "Nov 20, 2023",
-    status: "Upcoming",
-    price: 1299,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    id: "B12347",
-    tourName: "Kyoto Cultural Journey",
-    location: "Japan",
-    startDate: "Mar 5, 2024",
-    endDate: "Mar 17, 2024",
-    status: "Pending",
-    price: 2499,
-    image: "/placeholder.svg?height=200&width=300",
-  },
-]
-
-// Sample wishlist data
 
 
 export default function ProfilePage() {
   const user = useSelector((state: RootState) => state.user)
    const [wishlist, setWishlist] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  console.log(user)
+   const [bookings, setBookings] = useState<any[]>([]);
+   const [loading, setLoading] = useState(true);
   const router = useRouter()
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (!user?.name) {
-      router.replace("/")
+      router.replace("/");
     }
-  }, [])
-
-  if (!user?.name) {
-    return null // Prevent render during redirect
-  }
-
+  }, [user, router]);
+  */
+  
   useEffect(() => {
     const fetchWishlist = async () => {
-      if (!user) return; // Make sure user is logged in
+      if (!user) return;
   
       try {
         const response = await axios.get(`http://localhost:4000/api/wishlist/user/${user.id}`);
         const productIds = response.data.wishlist.map((item: any) => item.product_id);
   
-        // OPTIONAL: Fetch full product details if you only have product IDs
         const productDetails = await Promise.all(
           productIds.map(async (productId: number) => {
-            // Example: get details from your product API
             const productResponse = await axios.get(`http://localhost:4000/api/tours/${productId}`);
             return productResponse.data;
           })
@@ -96,9 +56,57 @@ export default function ProfilePage() {
     fetchWishlist();
   }, [user]);
   
-  if (loading) {
-    return <div>Loading wishlist...</div>;
-  }
+  useEffect(() => {
+    const fetchBookings = async () => {
+      if (!user) return;
+  
+      try {
+        // Step 1: Fetch list of product_ids from bookings
+        const response = await axios.get(`http://localhost:4000/api/bookings/user/${user.id}`);
+
+        const bookingIds = response.data.bookings.map((item: any) => item.id);
+        console.log(bookingIds)
+        // Step 2: Fetch full product details
+        const enrichedBookings = await Promise.all(
+          bookingIds.map(async (booking: any) => {
+            const bookingResponse = await axios.get(`http://localhost:4000/api/bookings/${booking}`);
+            return bookingResponse.data; // This contains the booking info along with tour details
+          })
+        );
+        
+  
+        // Update state with enriched bookings (booking + tour details)
+        
+        setBookings(enrichedBookings);
+        
+      } catch (error) {
+        console.error("Error fetching bookings:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchBookings();
+  }, [user]);
+  
+  
+
+  const removeFromWishlist = async (userId: number, productId: number) => {
+    try {
+      const response = await axios.delete("http://localhost:4000/api/wishlist/remove", {
+        data: {
+          user_id: userId,
+          product_id: productId
+        }
+      });
+  
+      console.log("Removed from wishlist:", response.data.message);
+      return response.data;
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+      throw error;
+    }
+  };
   
 
       return (
@@ -207,71 +215,60 @@ export default function ProfilePage() {
                 </TabsList>
     
                 <TabsContent value="bookings" className="pt-6">
-                  <div className="space-y-6">
-                    {bookings.map((booking) => (
-                      <Card key={booking.id}>
-                        <CardContent className="p-6">
-                          <div className="flex flex-col md:flex-row gap-6">
-                            <img
-                              src={booking.image || "/placeholder.svg"}
-                              alt={booking.tourName}
-                              className="w-full md:w-40 h-32 rounded-md object-cover"
-                            />
-                            <div className="flex-1">
-                              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-2">
-                                <h3 className="text-lg font-semibold">{booking.tourName}</h3>
-                                <div>
-                                  <Badge
-                                    className={`
-                                    ${booking.status === "Completed" ? "bg-green-500" : ""}
-                                    ${booking.status === "Upcoming" ? "bg-purple-600" : ""}
-                                    ${booking.status === "Pending" ? "bg-yellow-500" : ""}
-                                  `}
-                                  >
-                                    {booking.status}
-                                  </Badge>
-                                </div>
-                              </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-                                <div>
-                                  <div className="text-sm font-medium">Booking ID</div>
-                                  <div className="text-sm text-muted-foreground">{booking.id}</div>
-                                </div>
-                                <div>
-                                  <div className="text-sm font-medium">Location</div>
-                                  <div className="text-sm text-muted-foreground">{booking.location}</div>
-                                </div>
-                                <div>
-                                  <div className="text-sm font-medium">Travel Date</div>
-                                  <div className="text-sm text-muted-foreground">
-                                    {booking.startDate} - {booking.endDate}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-sm font-medium">Price</div>
-                                  <div className="text-sm text-muted-foreground">${booking.price}</div>
-                                </div>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button variant="outline" size="sm">
-                                  View Details
-                                </Button>
-                                {booking.status === "Completed" && (
-                                  <Button variant="outline" size="sm">
-                                    Write Review
-                                  </Button>
-                                )}
-                                {booking.status !== "Completed" && (
-                                  <Button variant="outline" size="sm">
-                                    Modify Booking
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {bookings.map((booking) => (
+  <Card key={booking.id}>
+    <CardHeader className="p-0">
+      <img
+        src={booking.tour.images[0] || "/placeholder.svg"}
+        alt={booking.tour?.title || "Tour"}
+        className="w-full h-40 object-cover rounded-t-lg"
+      />
+    </CardHeader>
+    <CardContent className="p-4">
+      <h3 className="font-semibold mb-1">{booking.tour.title || "Unknown Tour"}</h3>
+      <div className="flex items-center text-muted-foreground text-sm mb-2">
+        <span>{booking.tour.location || "N/A"}</span>
+        <span className="mx-2">•</span>
+        <span>{booking.tour.duration || "N/A"}</span>
+      </div>
+
+      {/* Booking-specific data */}
+      <div className="text-sm text-muted-foreground mb-2">
+      <p>
+  Dates:{" "}
+  {new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(booking.start_date))}{" "}
+  –{" "}
+  {new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(booking.end_date))}
+</p>
+
+        <p>Travelers: {booking.travelers}</p>
+        <p>Status: <span className="capitalize font-medium">{booking.status}</span></p>
+      </div>
+
+      <div className="mb-4">
+        <span className="text-lg font-bold">${booking.price}</span>
+        <span className="text-muted-foreground"> total</span>
+      </div>
+
+      <div className="flex gap-2">
+        <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
+          <a href={`/tours/${booking.tour?.id}`}>View Details</a>
+        </Button>
+        
+      </div>
+    </CardContent>
+  </Card>
+))}
+
                   </div>
                 </TabsContent>
     
@@ -301,7 +298,8 @@ export default function ProfilePage() {
                             <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
                               <a href={`/tours/${item.id}`}>View Details</a>
                             </Button>
-                            <Button variant="outline" size="icon">
+                            <Button variant="outline" size="icon" onClick={() => removeFromWishlist(user.id!, item.id)}
+>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="24"
@@ -333,5 +331,4 @@ export default function ProfilePage() {
   }
 
   
-
 

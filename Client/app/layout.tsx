@@ -3,10 +3,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { AuthProvider } from "@/components/auth-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/providers/providers";
 
@@ -25,6 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head><link rel="icon" href="/favicon.ico" sizes="any" /></head>
       <body className={`${inter.className} ${inter.variable}`}>
         <Providers>
           <div className="flex flex-col min-h-screen">

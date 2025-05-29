@@ -1,29 +1,83 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Menu } from "lucide-react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Link from "next/link";
+import { Loader2, Menu } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // Fix the import path - remove the .tsx extension
-import { useAuth } from "@/lib/auth"
-import { useSelector, useDispatch } from "react-redux"
-import { RootState } from "@/redux/store"
-import { clearUser } from "@/redux/userSlicer"
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "@/redux/store";
+import { setUser } from "@/redux/userSlicer";
+import { UserType } from "@/types/types";
+import axios from "axios";
+import { Cookies } from "react-cookie";
+import { usePathname, useRouter } from "next/navigation";
+
 export default function Navbar() {
-  const user = useSelector((state: RootState) => state.user)
-  
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  const dispatch = useDispatch()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [loadingButton, setLoadingButton] = useState<"sign-in" | "sign-up" | null>(null)
+  const pathname = usePathname()
   const router = useRouter()
+  const cookie = new Cookies();
+  const dispatch = useDispatch<AppDispatch>();
+  const user: UserType = useSelector((state: RootState) => state.user);
 
-  const signOut = () => {
-    dispatch(clearUser())
-    router.replace("/sign-in")
+  const signOut = async () => {
+    try {
+      // Clear user data from Redux store
+      dispatch(setUser({} as UserType));
+      cookie.remove("user_id");
+      cookie.remove("token");
+
+      // Redirect to the home page
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const userId = cookie.get("user_id");
+      const token = cookie.get("token");
+
+      if (userId && token) {
+        const response = await axios.get(
+          `http://localhost:4000/api/user/get-user/${userId}`,
+          {
+          
+          }
+        );
+        const res = response.data;
+        if (res.proceed) {
+          dispatch(setUser(res.data));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  useEffect(() => {
+ 
+    fetchUserData();
+  },[])
+
+  
+  const handleClick = (page: string, button: "sign-in" | "sign-up") => {
+    setLoadingButton(button)
+    router.push(page)
   }
+
+  useEffect(() => {
+    setLoadingButton(null)
+  }, [pathname])
+  
+  
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
       <div className="container flex h-16 items-center justify-between">
@@ -101,26 +155,41 @@ export default function Navbar() {
           <Link href="/" className="text-sm font-medium hover:text-purple-600">
             Home
           </Link>
-          <Link href="/tours" className="text-sm font-medium hover:text-purple-600">
+          <Link
+            href="/tours"
+            className="text-sm font-medium hover:text-purple-600"
+          >
             Tours
           </Link>
-          <Link href="/about" className="text-sm font-medium hover:text-purple-600">
+          <Link
+            href="/about"
+            className="text-sm font-medium hover:text-purple-600"
+          >
             About
           </Link>
-          <Link href="/contact" className="text-sm font-medium hover:text-purple-600">
+          <Link
+            href="/contact"
+            className="text-sm font-medium hover:text-purple-600"
+          >
             Contact
           </Link>
-          <Link href="/faq" className="text-sm font-medium hover:text-purple-600">
+          <Link
+            href="/faq"
+            className="text-sm font-medium hover:text-purple-600"
+          >
             FAQ
           </Link>
         </nav>
 
         <div className="flex items-center gap-4">
-          {user.id? (
+          {user.name ? (
             <div className="flex items-center gap-4">
               <Link href="/profile">
                 <Avatar>
-                  <AvatarImage src={"/profile.jpg"} alt={user.name || "User"} />
+                  <AvatarImage
+                    src={user.profile_image || ""}
+                    alt={user.name || "User"}
+                  />
                   <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
                 </Avatar>
               </Link>
@@ -130,17 +199,28 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="ghost" asChild>
-                <Link href="/sign-in">Sign In</Link>
-              </Button>
-              <Button asChild className="bg-purple-600 hover:bg-purple-700">
-                <Link href="/sign-up">Sign Up</Link>
-              </Button>
-            </div>
+            <Button variant={"ghost"}
+              onClick={() => handleClick('/sign-in', 'sign-in')}
+              disabled={loadingButton === 'sign-in'}
+              className="flex items-center gap-2"
+            >
+              {loadingButton === 'sign-in' && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loadingButton === 'sign-in' ? 'Loading...' : 'Sign In'}
+            </Button>
+          
+            <Button
+              onClick={() => handleClick('/sign-up', 'sign-up')}
+              disabled={loadingButton === 'sign-up'}
+              className="flex items-center gap-2"
+            >
+              {loadingButton === 'sign-up' && <Loader2 className="h-4 w-4 animate-spin" />}
+              {loadingButton === 'sign-up' ? 'Loading...' : 'Sign Up'}
+            </Button>
+          </div>
+          
           )}
         </div>
       </div>
     </header>
-  )
+  );
 }
-

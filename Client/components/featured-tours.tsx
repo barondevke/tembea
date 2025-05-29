@@ -1,12 +1,13 @@
 "use client"
 import Link from "next/link"
-import { MapPin } from "lucide-react"
+import { MapPin, Loader2 } from "lucide-react"
 import { useEffect,useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { useRouter, usePathname } from "next/navigation"
 
-// Sample tour data
+
 
 interface Tour {
   id: number
@@ -24,6 +25,8 @@ interface Tour {
 export default function FeaturedTours() {
   const [tours, setTours] = useState<Tour[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingId, setLoadingId] = useState<number | null>(null)
+  const router = useRouter()
   useEffect(() => {
     const fetchTours = async () => {
       try {
@@ -43,6 +46,13 @@ export default function FeaturedTours() {
 
     fetchTours()
   }, [])
+
+  const handleClick = (page: string, id: number) => {
+    setLoadingId(id)
+    router.push(page)
+  }
+
+
   return (
     <section className="container py-16">
       <div className="flex flex-col md:flex-row justify-between items-center mb-10">
@@ -101,8 +111,13 @@ export default function FeaturedTours() {
               </div>
             </CardContent>
             <CardFooter className="p-6 pt-0">
-              <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                <Link href={`/tours/${tour.id}`}>View Details</Link>
+            <Button
+                onClick={() => handleClick(`/tours/${tour.id}`, tour.id)}
+                disabled={loadingId === tour.id}
+                className="flex items-center gap-2"
+              >
+                {loadingId === tour.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                {loadingId === tour.id ? "Loading..." : "View Details"}
               </Button>
             </CardFooter>
           </Card>

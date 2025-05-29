@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { MapPin, Search, X } from "lucide-react"
+import { MapPin, Search, X, Loader2 } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -15,157 +15,7 @@ import { Slider } from "@/components/ui/slider"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 
-// Sample tour data
-const tours = [
-  {
-    id: 1,
-    title: "Serengeti Safari Adventure",
-    location: "Tanzania",
-    duration: "7 days",
-    price: 1899,
-    rating: 4.8,
-    reviews: 124,
-    image: "/serengeti.jpg",
-    featured: true,
-    discount: 15,
-    category: "Adventure",
-    continent: "Africa",
-  },
-  {
-    id: 2,
-    title: "Bali Beach Retreat",
-    location: "Indonesia",
-    duration: "10 days",
-    price: 1299,
-    rating: 4.7,
-    reviews: 98,
-    image: "/bali.jpg",
-    category: "Beach",
-    continent: "Asia",
-  },
-  {
-    id: 3,
-    title: "Amazon Rainforest Expedition",
-    location: "Brazil",
-    duration: "8 days",
-    price: 1599,
-    rating: 4.6,
-    reviews: 86,
-    image: "/amazon.jpg",
-    category: "Adventure",
-    continent: "South America",
-  },
-  {
-    id: 4,
-    title: "Kyoto Cultural Journey",
-    location: "Japan",
-    duration: "12 days",
-    price: 2499,
-    rating: 4.9,
-    reviews: 156,
-    image: "/kyoto.jpg",
-    featured: true,
-    category: "Cultural",
-    continent: "Asia",
-  },
-  {
-    id: 5,
-    title: "Santorini Island Escape",
-    location: "Greece",
-    duration: "8 days",
-    price: 1799,
-    rating: 4.7,
-    reviews: 112,
-    image: "/santorini.jpg",
-    category: "Beach",
-    continent: "Europe",
-  },
-  {
-    id: 6,
-    title: "Machu Picchu Trek",
-    location: "Peru",
-    duration: "9 days",
-    price: 1999,
-    rating: 4.8,
-    reviews: 204,
-    image: "/machu-picchu-trek.jpg",
-    category: "Adventure",
-    continent: "South America",
-  },
-  {
-    id: 7,
-    title: "Paris City Break",
-    location: "France",
-    duration: "5 days",
-    price: 1199,
-    rating: 4.5,
-    reviews: 178,
-    image: "/paris.jpg",
-    category: "City",
-    continent: "Europe",
-  },
-  {
-    id: 8,
-    title: "Maldives Luxury Getaway",
-    location: "Maldives",
-    duration: "7 days",
-    price: 3299,
-    rating: 4.9,
-    reviews: 89,
-    image: "/maldives.jpg",
-    featured: true,
-    category: "Luxury",
-    continent: "Asia",
-  },
-  {
-    id: 9,
-    title: "Iceland Northern Lights Tour",
-    location: "Iceland",
-    duration: "6 days",
-    price: 1899,
-    rating: 4.6,
-    reviews: 132,
-    image: "/iceland.jpg",
-    category: "Nature",
-    continent: "Europe",
-  },
-  {
-    id: 10,
-    title: "Egyptian Pyramids Explorer",
-    location: "Egypt",
-    duration: "8 days",
-    price: 1699,
-    rating: 4.7,
-    reviews: 145,
-    image: "/eygpt.jpg",
-    category: "Cultural",
-    continent: "Africa",
-  },
-  {
-    id: 11,
-    title: "New Zealand Adventure",
-    location: "New Zealand",
-    duration: "14 days",
-    price: 3499,
-    rating: 4.9,
-    reviews: 87,
-    image: "/new-zealand.jpg",
-    category: "Adventure",
-    continent: "Oceania",
-  },
-  {
-    id: 12,
-    title: "Canadian Rockies Expedition",
-    location: "Canada",
-    duration: "10 days",
-    price: 2299,
-    rating: 4.8,
-    reviews: 104,
-    image: "/rockies.jpg",
-    category: "Nature",
-    continent: "North America",
-  },
-]
+
 
 interface Tour {
   id: number
@@ -321,6 +171,11 @@ const resetFilters = () => {
   // Toggle continent selection
   const toggleContinent = (value: string) => {
     setSelectedContinents((prev) => (prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]))
+  }
+
+  const handleClick = (page:string) => {
+    setLoading(true)
+    router.push(page)
   }
 
   return (
@@ -631,9 +486,11 @@ const resetFilters = () => {
                         </div>
                       </CardContent>
                       <CardFooter className="p-6 pt-0">
-                        <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                          <Link href={`/tours/${tour.id}`}>View Details</Link>
-                        </Button>
+                      <Button onClick={() => handleClick(`/tours/${tour.id}`)}
+disabled={loading} className="flex items-center gap-2">
+      {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+      {loading ? 'Loading...' : 'View Details'}
+    </Button>
                       </CardFooter>
                     </Card>
                   ))}

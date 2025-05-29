@@ -5,7 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,48 +36,36 @@ export default function SignInPage() {
   const dispatch = useDispatch<AppDispatch>();
 
   const defaultSignIn = async () => {
-    try {
-      const payload = { email, password };
-      const response = await axios.post(
-        "http://localhost:4000/api/user/sign-in",
-        payload
-      );
-      const res = response.data;
-      console.log(res)
-      
-      if (!res.proceed) {
-        throw new Error(res.message);
-      }
-  
-      const expirationDate = new Date();
-      expirationDate.setDate(expirationDate.getDate() + 7);
-  
-      cookie.set("user_id", res.data.id, {
-        expires: expirationDate,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
-  
-      cookie.set("token", res.data.token, {
-        expires: expirationDate,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
-  
-      dispatch(setUser(res.data));
-  
-      console.log('User signed in'); // Check if this is reached
-    } catch (error:unknown) {
-      if (error instanceof Error) {
-        console.error("Error during sign-in:", error.message); // Type-safe way of accessing error.message
-      } else {
-        console.error("An unknown error occurred during sign-in.");
-      }
+    const payload = {
+      email,
+      password,
+    };
 
-      
+    const response = await axios.post(
+      "http://localhost:4000/api/user/sign-in",
+      payload
+    );
+    const res = response.data;
+    if (!res.proceed) {
+      throw new Error(res.message);
     }
+
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 7);
+
+    cookie.set("user_id", res.data.id, {
+      expires: expirationDate,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    cookie.set("token", res.data.token, {
+      expires: expirationDate,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    dispatch(setUser(res.data));
   };
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,14 +74,13 @@ export default function SignInPage() {
     try {
       // In a real app, you would validate credentials here
       await defaultSignIn();
-      
-      /*toast({
+      toast({
         title: "Sign in successful",
         description: "Welcome back to Tembea!",
-      });*/
-      console.log("Redirecting to home")
-      router.replace("/");
+      });
+      router.push("/");
     } catch (error) {
+      console.error(error);
       toast({
         title: "Sign in failed",
         description: "Please check your credentials and try again.",

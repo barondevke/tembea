@@ -6,7 +6,7 @@ const initialState: VerificationType = {
   email: null,
   password: null,
   id: null,
-  date_created: new Date(),
+  date_created: null,
 };
 
 const verificationSlice = createSlice({

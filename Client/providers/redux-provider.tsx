@@ -1,0 +1,41 @@
+"use client";
+import React, { useEffect } from "react";
+import axios from "axios";
+import { Cookies } from "react-cookie";
+
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/userSlicer";
+import { AppDispatch } from "@/redux/store";
+import {type ChildrenType} from "@/types/types";
+
+function ReduxProvider({ children }: ChildrenType) {
+  const cookie = new Cookies();
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId = cookie.get("user_id");
+
+        console.log(userId)
+
+        if (userId) {
+          const response = await axios.get(
+            `http://localhost:4000/api/user/get-user/${userId}`,
+          );
+          const res = response.data;
+          if (res.proceed) {
+            dispatch(setUser(res.data));
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+  return <>{children}</>;
+}
+
+export default ReduxProvider;

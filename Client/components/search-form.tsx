@@ -16,7 +16,7 @@ export default function SearchForm() {
   const router = useRouter()
   const [tour, setTour] = useState("")
   const [date, setDate] = useState<Date>()
-  const [travelers, setTravelers] = useState("2")
+  
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,7 +24,7 @@ export default function SearchForm() {
     const params = new URLSearchParams()
 if (tour) params.set("tour", tour)
 if (date) params.set("date", date.toISOString().split("T")[0])
-if (travelers) params.set("travelers", travelers)
+
 router.push(`/tours?${params.toString()}`)
 
   }
@@ -59,21 +59,7 @@ router.push(`/tours?${params.toString()}`)
         </Popover>
       </div>
   
-      <div className="md:w-[150px]">
-        <Select value={travelers} onValueChange={setTravelers}>
-          <SelectTrigger className="bg-white/20 border-white/20 text-white">
-            <Users className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Travelers" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="1">1 Traveler</SelectItem>
-            <SelectItem value="2">2 Travelers</SelectItem>
-            <SelectItem value="3">3 Travelers</SelectItem>
-            <SelectItem value="4">4 Travelers</SelectItem>
-            <SelectItem value="5+">5+ Travelers</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+     
   
       <Button type="submit" className="bg-purple-600 hover:bg-purple-700 md:w-[120px]">
         Search

@@ -41,8 +41,6 @@ export default function VerifyEmailPage() {
   const dispatch = useDispatch<AppDispatch>();
   const cookie = new Cookies();
 
-
-
   const router = useRouter();
   const { toast } = useToast();
 
@@ -145,7 +143,9 @@ export default function VerifyEmailPage() {
           email: createUserRes.data.data.email,
           name: createUserRes.data.data.name,
           id: createUserRes.data.data.id,
-          
+          profile_image: createUserRes.data.data.profile_image,
+          enabled: true,
+          date_created: new Date(),
         };
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 7);

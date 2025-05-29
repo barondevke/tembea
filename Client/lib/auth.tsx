@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { useDispatch } from "react-redux"
-import { setUser,clearUser } from "@/redux/userSlicer"
+import { setUser } from "@/redux/userSlicer"
 import { useRouter } from "next/navigation"
 
 type User = {
@@ -16,14 +16,12 @@ type User = {
 type AuthContextType = {
   user: User | null
   signIn: () => void
-  signOut: () => void
   loading: boolean
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   signIn: () => {},
-  signOut: () => {},
   loading: true,
 })
 
@@ -64,12 +62,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const signOut = () => {
-    dispatch(clearUser())
-    router.replace("/sign-in") // Redirect to sign-in page after logout
-  }
 
-  return <AuthContext.Provider value={{ user, signIn, signOut, loading }}>{children}</AuthContext.Provider>
+
+  return <AuthContext.Provider value={{ user, signIn, loading }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)

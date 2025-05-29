@@ -68,7 +68,7 @@ export default function SignUpPage() {
     };
 
     try {
-      const response = await axios.post("http://localhost:4000/api/user/verifyv3", cleanedData);
+      const response = await axios.post("http://localhost:4000/api/user/verify", cleanedData);
       const res = response.data;
 
       if (res.proceed) {

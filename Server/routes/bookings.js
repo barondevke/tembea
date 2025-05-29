@@ -66,5 +66,28 @@ router.post("/create", async (req, res) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
+  router.get("/user/:user_id", async (req, res) => {
+    const { user_id } = req.params;
+  
+    if (!user_id) {
+      return res.status(400).json({ message: "Missing user_id" });
+    }
+  
+    try {
+      const conn = await dbConnection;
+  
+      const [bookings] = await conn.query(
+        "SELECT id FROM bookings WHERE user_id = ?",
+        [user_id]
+      );
+  
+      return res.status(200).json({ bookings });
+    } catch (err) {
+      console.error("Error fetching booking IDs:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+  });
+  
   
 module.exports = router; 

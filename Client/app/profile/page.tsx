@@ -101,6 +101,7 @@ export default function ProfilePage() {
       });
   
       console.log("Removed from wishlist:", response.data.message);
+      
       return response.data;
     } catch (error) {
       console.error("Error removing from wishlist:", error);

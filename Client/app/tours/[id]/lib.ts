@@ -31,6 +31,7 @@ export type Review = {
     discount_price:number | null;
     notIncluded: string[];
     itinerary: ItineraryItem[];
+    subaccount_code:string | null
   };
 
   type Params = {

@@ -8,7 +8,11 @@ import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/providers/providers";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "Tembea - Discover Amazing Tour Packages",

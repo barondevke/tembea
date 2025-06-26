@@ -265,40 +265,52 @@ router.get("/filter", async (req, res) => {
   });  
   
 
-router.get("/:id", async (req, res) => {
-  const tourId = req.params.id;
-  const conn = await dbConnection;
-
-  try {
-    // Get main product
-    const [productRows] = await conn.query("SELECT * FROM products WHERE id = ?", [tourId]);
-    if (productRows.length === 0) return res.status(404).json({ error: "Tour not found" });
-
-    const product = productRows[0];
-
-    // Get related data
-    const [images] = await conn.query("SELECT image_url FROM product_images WHERE product_id = ?", [tourId]);
-    const [reviews] = await conn.query("SELECT name, date, rating, comment, avatar FROM reviews WHERE product_id = ?", [tourId]);
-    const [highlights] = await conn.query("SELECT highlight FROM product_highlights WHERE product_id = ?", [tourId]);
-    const [included] = await conn.query("SELECT item FROM product_included WHERE product_id = ?", [tourId]);
-    const [notIncluded] = await conn.query("SELECT item FROM product_not_included WHERE product_id = ?", [tourId]);
-    const [itinerary] = await conn.query("SELECT day, title, description FROM product_itinerary WHERE product_id = ?", [tourId]);
-
-    res.json({
-      ...product,
-      images: images.map(i => i.image_url),
-      reviews,
-      highlights: highlights.map(h => h.highlight),
-      included: included.map(i => i.item),
-      notIncluded: notIncluded.map(i => i.item),
-      itinerary
-    });
-
-  } catch (err) {
-    console.error("GET /api/tours/:id error:", err);
-    res.status(500).json({ error: "Server error", details: err.message });
-  }
-});
+  router.get("/:id", async (req, res) => {
+    const tourId = req.params.id;
+    const conn = await dbConnection;
+  
+    try {
+      // Get main product
+      const [productRows] = await conn.query("SELECT * FROM products WHERE id = ?", [tourId]);
+      if (productRows.length === 0) return res.status(404).json({ error: "Tour not found" });
+  
+      const product = productRows[0];
+  
+      // Get seller's subaccount_code
+      const [sellerRows] = await conn.query(
+        `SELECT s.subaccount_code 
+         FROM sellers s 
+         JOIN products p ON p.seller_id = s.id 
+         WHERE p.id = ?`,
+        [tourId]
+      );
+      const subaccount_code = sellerRows[0]?.subaccount_code || null;
+  
+      // Get related data
+      const [images] = await conn.query("SELECT image_url FROM product_images WHERE product_id = ?", [tourId]);
+      const [reviews] = await conn.query("SELECT name, date, rating, comment, avatar FROM reviews WHERE product_id = ?", [tourId]);
+      const [highlights] = await conn.query("SELECT highlight FROM product_highlights WHERE product_id = ?", [tourId]);
+      const [included] = await conn.query("SELECT item FROM product_included WHERE product_id = ?", [tourId]);
+      const [notIncluded] = await conn.query("SELECT item FROM product_not_included WHERE product_id = ?", [tourId]);
+      const [itinerary] = await conn.query("SELECT day, title, description FROM product_itinerary WHERE product_id = ?", [tourId]);
+  
+      res.json({
+        ...product,
+        images: images.map(i => i.image_url),
+        reviews,
+        highlights: highlights.map(h => h.highlight),
+        included: included.map(i => i.item),
+        notIncluded: notIncluded.map(i => i.item),
+        itinerary,
+        subaccount_code, // 🔑 Add this field to the final response
+      });
+  
+    } catch (err) {
+      console.error("GET /api/tours/:id error:", err);
+      res.status(500).json({ error: "Server error", details: err.message });
+    }
+  });
+  
 
 
 

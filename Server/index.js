@@ -1,5 +1,8 @@
 const express = require("express");
 const cors = require("cors");
+const bodyParser = require('body-parser');
+const axios = require('axios')
+const crypto = require('crypto')
 const stripe = require('stripe')('sk_test_51R7Y9AB6OLclKHp6y0Z7Zpx1TXlpJAXLPLvoeQA8DxmNqAMqqxY4U70Y8lluWHuLeA9EhtrxxCBDhUGny3EQULWE00GHjH6q2A');
 const toursRoutes = require("./routes/tours");
 const userRoutes = require("./routes/user")
@@ -7,11 +10,13 @@ const wishlistRoutes = require("./routes/wishlist")
 const bookingsRoutes = require("./routes/bookings")
 const dbConnection = require("./db")
 const app = express();
+const PAYSTACK_SECRET_KEY = 'sk_test_606207e7c242bc70b361db8f039843df0be9f42d';
+
  
 app.use(cors({ origin: ["http://localhost:3001","http://localhost:3000"], credentials: true }));
 
 
-app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
+/*app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
   const sig = request.headers['stripe-signature'];
 const endpointSecret = "whsec_32ceab3cdb3dfb3177b4f2d5a2e1651d5adc9c664417453f18e7e2184ac7f4c3"
 
@@ -62,6 +67,70 @@ const endpointSecret = "whsec_32ceab3cdb3dfb3177b4f2d5a2e1651d5adc9c664417453f18
   }
 
   response.json({ received: true });
+});*/
+app.post('/paystack/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
+  const hash = crypto
+    .createHmac('sha512', PAYSTACK_SECRET_KEY)
+    .update(req.body)
+    .digest('hex');
+
+  const signature = req.headers['x-paystack-signature'];
+
+  if (hash !== signature) {
+    return res.status(401).send('Invalid signature');
+  }
+
+  const event = JSON.parse(req.body);
+
+  if (event.event === 'charge.success') {
+    const trx = event.data;
+
+    const paymentDetails = {
+      transaction_id: trx.id,
+      status: trx.status,
+      payment_channel: trx.channel,
+      created_at: trx.created_at,
+      updated_at: trx.paid_at,
+      amount: trx.amount,
+      currency: trx.currency,
+      customer_email: trx.customer.email,
+      reference: trx.reference,
+    };
+
+    console.log('✅ Payment verified:', paymentDetails);
+
+    try {
+      const conn = await dbConnection;
+
+      // Find the booking
+      const [rows] = await conn.query(
+        `SELECT booking_id FROM transactions WHERE stripe_payment_id = ?`,
+        [trx.reference]
+      );
+
+      if (rows.length > 0) {
+        const bookingId = rows[0].booking_id;
+
+        await conn.query(
+          `UPDATE bookings SET status = 'Confirmed' WHERE id = ?`,
+          [bookingId]
+        );
+
+        await conn.query(
+          `UPDATE transactions SET payment_status = 'succeeded', updated_at = NOW() WHERE stripe_payment_id = ?`,
+          [trx.reference]
+        );
+
+        console.log(`✅ Booking ${bookingId} confirmed.`);
+      } else {
+        console.log(`❌ No booking found for reference: ${trx.reference}`);
+      }
+    } catch (err) {
+      console.error('❌ Webhook DB Error:', err);
+    }
+  }
+
+  res.sendStatus(200);
 });
 
 app.use(express.json());
@@ -75,7 +144,7 @@ app.use("/api/wishlist",wishlistRoutes)
 app.use("/api/bookings",bookingsRoutes)
 
 
-app.post('/create-checkout-session', async (req, res) => {
+/*app.post('/create-checkout-session', async (req, res) => {
   const { booking_id, user_id, amount, selectedTravelers } = req.body;
   
   try {
@@ -107,8 +176,92 @@ app.post('/create-checkout-session', async (req, res) => {
     console.error("Stripe Error:", error);
     res.status(500).json({ error: error.message });
   }
+});*/
+
+app.post('/api/initiate-payment', async (req, res) => {
+  const { email, amount, subaccount, user_id, booking_id } = req.body;
+
+  if (!email || !amount || !subaccount || !user_id || !booking_id) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    console.log('🔄 Initiating payment with:', { email, amount, subaccount });
+
+    const response = await axios.post(
+      'https://api.paystack.co/transaction/initialize',
+      {
+        email,
+       amount:amount*100*130,
+       currency:"KES",
+        subaccount,
+      callback_url:`http://localhost:3000/booking/success?bookingId=${booking_id}` ,
+        metadata: { booking_id, user_id },
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log('✅ Paystack init response:', response.data);
+
+    const conn = await dbConnection;
+    await conn.query(
+      `INSERT INTO transactions (user_id, booking_id, stripe_payment_id, amount, currency, payment_status, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [user_id, booking_id, response.data.data.reference, amount*100*130, 'KES', 'Pending']
+    );
+
+    return res.status(200).json({
+      authorization_url: response.data.data.authorization_url,
+      reference: response.data.data.reference,
+    });
+  } catch (error) {
+    console.error('❌ Payment init error:', error.response?.data || error.message || error);
+    return res.status(500).json({
+      error: error.response?.data || error.message || 'Failed to initiate payment',
+    });
+  }
 });
 
+app.get('/success', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>Payment Successful</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+          }
+          .card {
+            padding: 2rem;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+          }
+          .card h1 {
+            color: green;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h1>✅ Payment Successful</h1>
+          <p>Thank you for your purchase! We'll be in touch with your travel details shortly.</p>
+        </div>
+      </body>
+    </html>
+  `);
+});
 
 
 

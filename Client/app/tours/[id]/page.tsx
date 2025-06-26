@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { RootState } from "@/redux/store"
 import { useSelector, useDispatch } from "react-redux"
+import { Loader2 } from "lucide-react";
 
 // Fix the import path - remove the .tsx extension
 import { useAuth } from "@/lib/auth"
@@ -41,7 +42,8 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
     discount:null,
     discount_price:null,
     notIncluded: [],
-    itinerary: []
+    itinerary: [],
+    subaccount_code:null
   };
   const [tour, setTour] = useState<Tour>(tourDefault);
 
@@ -114,6 +116,9 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
   
   
   const handleBookNow = async () => {
+    if (loading) return;
+    setLoading(true);
+
     if (!user.name) {
       toast({
         title: "Sign in required",
@@ -134,7 +139,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
     }
   
     try {
-      // 1. Create a booking
+      
       const bookingResponse = await axios.post("http://localhost:4000/api/bookings/create", {
         user_id: user.id,
         product_id: tour.id,
@@ -147,21 +152,22 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
       const bookingId = bookingResponse.data.booking_id;
   
       // 2. Create Stripe checkout session
-      const stripeResponse = await axios.post("http://localhost:4000/create-checkout-session", {
-        booking_id: bookingId,
-        user_id: user.id,
-        amount: calculateTotalPrice(tour.price, selectedTravelers),
-        selectedTravelers: selectedTravelers,
-      });
-  
-      const { url } = stripeResponse.data;
-  
-      // 3. Redirect user to Stripe Checkout
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error("Stripe session creation failed");
-      }
+      const paymentResponse = await axios.post("http://localhost:4000/api/initiate-payment", {
+      email: user.email,
+      amount: calculateTotalPrice(tour.price, selectedTravelers), // in USD or base units
+      subaccount: tour.subaccount_code, // 🛑 Make sure this exists in your tour object
+      user_id: user.id,
+      booking_id: bookingId,
+    });
+
+    const { authorization_url } = paymentResponse.data;
+
+    // 3. Redirect user to Paystack checkout
+    if (authorization_url) {
+      window.location.href = authorization_url;
+    } else {
+      throw new Error("Failed to get Paystack authorization URL");
+    }
   
     } catch (error) {
       console.error("Booking error:", error);
@@ -255,7 +261,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
   }
 
   const handleBuyNow = async () => {
-    setLoading(true);
+    ;
     try {
       const response = await fetch("http://localhost:4000/create-checkout-session", {
         method: "POST",
@@ -596,9 +602,20 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
             </div>
 
             <div className="space-y-3">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleBookNow}>
-                Book Now
-              </Button>
+            <Button
+  className="w-full bg-purple-600 hover:bg-purple-700"
+  onClick={handleBookNow}
+  disabled={loading}
+>
+  {loading ? (
+    <div className="flex items-center justify-center gap-2">
+      <Loader2 className="animate-spin w-4 h-4" />
+      Booking...
+    </div>
+  ) : (
+    "Book Now"
+  )}
+</Button>
 
               <Button
                 variant="outline"

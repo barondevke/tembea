@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require('body-parser');
@@ -10,7 +11,6 @@ const wishlistRoutes = require("./routes/wishlist")
 const bookingsRoutes = require("./routes/bookings")
 const dbConnection = require("./db")
 const app = express();
-const PAYSTACK_SECRET_KEY = 'sk_test_606207e7c242bc70b361db8f039843df0be9f42d';
 
  
 app.use(cors({ origin: ["http://localhost:3001","http://localhost:3000"], credentials: true }));
@@ -70,7 +70,7 @@ const endpointSecret = "whsec_32ceab3cdb3dfb3177b4f2d5a2e1651d5adc9c664417453f18
 });*/
 app.post('/paystack/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
   const hash = crypto
-    .createHmac('sha512', PAYSTACK_SECRET_KEY)
+    .createHmac('sha512', process.env.PAYSTACK_SECRET_KEY)
     .update(req.body)
     .digest('hex');
 
@@ -200,7 +200,7 @@ app.post('/api/initiate-payment', async (req, res) => {
       },
       {
         headers: {
-          Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
           'Content-Type': 'application/json',
         },
       }

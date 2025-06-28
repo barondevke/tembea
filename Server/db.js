@@ -3,8 +3,8 @@ const mysql = require("mysql2/promise");
 const dbConfig = {
   host: "localhost",
   user: "root",
-  password: "root",
+  password: "",
   database: "tembea"
 };
 
-module.exports = mysql.createConnection(dbConfig);
+module.exports = mysql.createConnection(dbConfig)

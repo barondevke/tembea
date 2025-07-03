@@ -4,6 +4,9 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 const axios = require('axios')
 const crypto = require('crypto')
+const session =require("express-session");
+const RedisStore = require("connect-redis").RedisStore;
+const redisClient = require("./redisClient.js");
 const stripe = require('stripe')('sk_test_51R7Y9AB6OLclKHp6y0Z7Zpx1TXlpJAXLPLvoeQA8DxmNqAMqqxY4U70Y8lluWHuLeA9EhtrxxCBDhUGny3EQULWE00GHjH6q2A');
 const toursRoutes = require("./routes/tours");
 const userRoutes = require("./routes/user")
@@ -12,9 +15,30 @@ const bookingsRoutes = require("./routes/bookings")
 const dbConnection = require("./db")
 const app = express();
 
- 
-app.use(cors({ origin: ["http://localhost:3001","http://localhost:3000"], credentials: true }));
 
+
+
+
+
+let redisStore = new RedisStore({
+  client: redisClient,
+  prefix: "tembea",
+});
+
+
+app.use(cors({ origin: ["http://localhost:3001","http://localhost:3000"], credentials: true }));
+app.use(
+  session({
+    store: redisStore,
+    secret: process.env.REDIS_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, 
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    },
+  })
+);
 
 /*app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
   const sig = request.headers['stripe-signature'];

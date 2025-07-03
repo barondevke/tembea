@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const dbConnection = require("../db");
 const nodemailer = require("nodemailer");
+const requireLogin =require("../requireLogin");
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -62,7 +63,7 @@ router.post("/verify", async (req, res) => {
     const verificationID = randomNumber()
 
     const mailOptions = {
-      from: '"AdInfinite" <tom.ndemo.adinfinite@gmail.com>',
+      from: '"Tembea" <tom.ndemo.adinfinite@gmail.com>',
       to: email,
       subject: "Your verification code",
       text: `Your OTP for Tembea sign up is ${code}. Best Regards, Tembea`,
@@ -139,6 +140,53 @@ router.get("/verify-code/:verificationID/:trialCode", async (req, res) => {
 router.post("/create-user", async (req, res) => {
   const data = req.body.verification;
 
+  try {
+    const conn = await dbConnection;
+
+    const saltRounds = 12;
+    const password = await bcrypt.hash(data.password, saltRounds);
+
+    const [result] = await conn.query(
+      `INSERT INTO Users (name, email, password, enabled, date_created, profile_image)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [data.name, data.email, password, 1, new Date(), null]
+    );
+
+    const userId = result.insertId;
+
+    const [users] = await conn.query("SELECT * FROM Users WHERE id = ?", [userId]);
+    const user = users[0];
+
+    // ✅ Store session in Redis
+    req.session.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+
+    return res.send({
+      data: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        date_created: user.date_created,
+        enabled: user.enabled,
+        profile_image: user.profile_image,
+      },
+      message: `USER ${user.name} CREATED AND LOGGED IN`,
+      proceed: true,
+    });
+
+  } catch (error) {
+    console.error("Account creation error:", error.message);
+    return res.status(500).send("ERROR CREATING ACCOUNT");
+  }
+});
+
+
+/*router.post("/create-user", async (req, res) => {
+  const data = req.body.verification;
+
 
   try {
     const conn = await dbConnection;
@@ -186,10 +234,11 @@ router.post("/create-user", async (req, res) => {
     console.error("Account creation error:", error.message);
     return res.status(500).send("ERROR CREATING ACCOUNT");
   }
-});
+});*/
 
 
-router.post("/sign-in", async (req, res) => {
+/*router.post("/sign-in", async (req, res) => {
+
   const { email, password } = req.body;
   console.log(email, password)
 
@@ -235,10 +284,85 @@ router.post("/sign-in", async (req, res) => {
     console.error("Sign-in error:", error.message);
     return res.status(500).send("ERROR SIGNING IN");
   }
+});*/
+
+router.post("/sign-in", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const conn = await dbConnection;
+
+    const [rows] = await conn.query(
+      "SELECT * FROM Users WHERE email = ? AND enabled = TRUE",
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return res.send({ message: `USER NOT FOUND`, proceed: false });
+    }
+
+    const user = rows[0];
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.send({ message: `INCORRECT PASSWORD`, proceed: false });
+    }
+
+    // Store session in Redis
+    req.session.user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      enabled: user.enabled,
+      profile_image: user.profile_image,
+      date_created: user.date_created, // ✅ include this!
+    };
+
+    await conn.query(
+      "DELETE FROM user_sessions WHERE user_id = ?",
+      [user.id]
+    );
+    
+    // Insert login record
+    await conn.query(
+      `INSERT INTO user_sessions (user_id, session_id, login_time) VALUES (?, ?, ?)`,
+      [user.id, req.sessionID, new Date()]
+    );
+    
+
+    res.send({
+      message: `USER ${user.name} SIGNED IN SUCCESSFULLY`,
+      proceed: true,
+      user: req.session.user,
+    });
+  } catch (error) {
+    console.error("Sign-in error:", error.message);
+    return res.status(500).send("ERROR SIGNING IN");
+  }
 });
 
-router.get("/get-user/:id", async (req, res) => {
+router.post("/sign-out",async (req, res) => {
+  const sessionId = req.sessionID;
+  const conn = await dbConnection;
+
+  await conn.query(
+    `UPDATE user_sessions SET logout_time = ? WHERE session_id = ?`,
+    [new Date(), sessionId]
+  );
+
+
+  req.session.destroy(err => {
+    if (err) return res.status(500).send("FAILED TO LOG OUT");
+    res.clearCookie("connect.sid");
+    res.send({ message: "SIGNED OUT SUCCESSFULLY" });
+  });
+});
+
+router.get("/get-user/:id",requireLogin, async (req, res) => {
   const userId = req.params.id;
+  if (parseInt(userId) !== req.session.user.id) {
+    return res.status(403).send({ message: "FORBIDDEN: NOT YOUR PROFILE" });
+  }
   console.log(userId)
 
   try {
@@ -272,8 +396,6 @@ router.get("/get-user/:id", async (req, res) => {
     return res.send("ERROR GETTING USER");
   }
 });
-
-
 
 
 

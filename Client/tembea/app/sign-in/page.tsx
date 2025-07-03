@@ -43,7 +43,9 @@ export default function SignInPage() {
 
     const response = await axios.post(
       "http://localhost:4000/api/user/sign-in",
-      payload
+      payload, {
+        withCredentials: true, // ✅ this is the Axios equivalent of fetch's "credentials: 'include'"
+      }
     );
     const res = response.data;
     if (!res.proceed) {
@@ -52,19 +54,9 @@ export default function SignInPage() {
 
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 7);
+    
 
-    cookie.set("user_id", res.data.id, {
-      expires: expirationDate,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-
-    cookie.set("token", res.data.token, {
-      expires: expirationDate,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-    dispatch(setUser(res.data));
+    dispatch(setUser(res.user));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

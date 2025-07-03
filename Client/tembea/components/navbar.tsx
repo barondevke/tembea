@@ -25,7 +25,7 @@ export default function Navbar() {
   const dispatch = useDispatch<AppDispatch>();
   const user: UserType = useSelector((state: RootState) => state.user);
 
-  const signOut = async () => {
+ /* const signOut = async () => {
     try {
       // Clear user data from Redux store
       dispatch(setUser({} as UserType));
@@ -33,6 +33,27 @@ export default function Navbar() {
       cookie.remove("token");
 
       // Redirect to the home page
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };*/
+
+  const signOut = async () => {
+    try {
+      // ✅ Call backend to destroy session
+      await axios.post("http://localhost:4000/api/user/sign-out", {}, {
+        withCredentials: true, // 🔥 Required to send session cookie
+      });
+  
+      // ✅ Clear Redux store
+      dispatch(setUser({} as UserType));
+  
+      // ✅ Optional: Clear any client cookies (just in case)
+      cookie.remove("user_id");
+      cookie.remove("token");
+  
+      // ✅ Redirect
       window.location.href = "/";
     } catch (error) {
       console.error("Error signing out:", error);

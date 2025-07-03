@@ -137,6 +137,8 @@ export default function VerifyEmailPage() {
 
         const createUserRes = await axios.post(`http://localhost:4000/api/user/create-user`, {
           verification,
+        }, {
+          withCredentials: true, // ✅ this is the Axios equivalent of fetch's "credentials: 'include'"
         });
 
         const data: UserType = {

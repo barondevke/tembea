@@ -1,16 +1,27 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect } from "react"
-import { useRouter, usePathname } from "next/navigation"
-import Link from "next/link"
-import { LayoutDashboard, Package, Calendar, Users, Store, CreditCard, LogOut, Menu } from "lucide-react"
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  LayoutDashboard,
+  Package,
+  Calendar,
+  Users,
+  Store,
+  CreditCard,
+  LogOut,
+  Menu,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { AdminAuthProvider, useAdminAuth } from "@/lib/admin-auth"
-import { Toaster } from "@/components/ui/toaster"
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { AdminAuthProvider, useAdminAuth } from "@/lib/admin-auth";
+import { Toaster } from "@/components/ui/toaster";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -19,18 +30,19 @@ const navigation = [
   { name: "Users", href: "/admin/users", icon: Users },
   { name: "Sellers", href: "/admin/sellers", icon: Store },
   { name: "Transactions", href: "/admin/transactions", icon: CreditCard },
-]
+];
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
-  const { admin, signOut, loading } = useAdminAuth()
-  const router = useRouter()
-  const pathname = usePathname()
+  const { admin, signOut, loading } = useAdminAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+  const role = useSelector((state: RootState) => state.user.role);
 
   useEffect(() => {
     if (!loading && !admin && pathname !== "/admin/login") {
-      router.push("/admin/login")
+      router.push("/admin/login");
     }
-  }, [admin, loading, router, pathname])
+  }, [admin, loading, router, pathname]);
 
   if (loading) {
     return (
@@ -40,15 +52,15 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           <p className="mt-2 text-muted-foreground">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  if (!admin && pathname !== "/admin/login") {
-    return null
+  if (role !== "admin" && pathname !== "/admin/login") {
+    return <></>;
   }
 
   if (pathname === "/admin/login") {
-    return <>{children}</>
+    return <>{children}</>;
   }
 
   return (
@@ -56,7 +68,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       {/* Mobile sidebar */}
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-50 md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="fixed top-4 left-4 z-50 md:hidden"
+          >
             <Menu className="h-6 w-6" />
           </Button>
         </SheetTrigger>
@@ -68,20 +84,22 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
             <nav className="flex-1 p-4 space-y-2">
               {navigation.map((item) => {
-                const Icon = item.icon
-                const isActive = pathname === item.href
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive ? "bg-purple-100 text-purple-700" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      isActive
+                        ? "bg-purple-100 text-purple-700"
+                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                     }`}
                   >
                     <Icon className="mr-3 h-5 w-5" />
                     {item.name}
                   </Link>
-                )
+                );
               })}
             </nav>
             <div className="p-4 border-t">
@@ -107,20 +125,22 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
           <nav className="flex-1 p-4 space-y-2">
             {navigation.map((item) => {
-              const Icon = item.icon
-              const isActive = pathname === item.href
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive ? "bg-purple-100 text-purple-700" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    isActive
+                      ? "bg-purple-100 text-purple-700"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   }`}
                 >
                   <Icon className="mr-3 h-5 w-5" />
                   {item.name}
                 </Link>
-              )
+              );
             })}
           </nav>
           <div className="p-4 border-t">
@@ -141,14 +161,18 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         <main className="p-4 md:p-8">{children}</main>
       </div>
     </div>
-  )
+  );
 }
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <AdminAuthProvider>
       <AdminLayoutContent>{children}</AdminLayoutContent>
       <Toaster />
     </AdminAuthProvider>
-  )
+  );
 }

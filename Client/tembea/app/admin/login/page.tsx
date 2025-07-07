@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
         title: "Sign in successful",
         description: "Welcome back to Tembea!",
       });
-      router.push("/");
+      router.push("/admin/");
     } catch (error) {
       console.error(error);
       toast({

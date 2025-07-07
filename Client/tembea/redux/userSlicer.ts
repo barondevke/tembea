@@ -8,6 +8,7 @@ const initialState: UserType = {
   enabled: null,
   date_created: null,
   profile_image: null,
+  role:null
 };
 
 const userSlice = createSlice({

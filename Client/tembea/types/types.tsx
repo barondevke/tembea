@@ -5,6 +5,7 @@ export type UserType = {
   enabled: boolean | null;
   date_created: Date | null;
   profile_image: string | null;
+  role: string | null;
 };
 
 export type ChildrenType = {

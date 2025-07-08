@@ -1,52 +1,51 @@
 "use client";
 
 import type React from "react";
+
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Shield } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+
+import api from "@/api"
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-import { useDispatch } from "react-redux";
-import { setUser } from "@/redux/userSlicer";
-import { AppDispatch } from "@/redux/store";
-
+import { Separator } from "@/components/ui/separator";
+// Fix the import path - remove the .tsx extension
+import { useAuth } from "@/lib/auth";
 import { useToast } from "@/components/ui/use-toast";
 
 import axios from "axios";
 import { Cookies } from "react-cookie";
+
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/userSlicer";
+import { AppDispatch } from "@/redux/store";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { signIn } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+
+  const cookie = new Cookies();
 
   const dispatch = useDispatch<AppDispatch>();
 
   const defaultSignIn = async () => {
     const payload = {
       email,
-      password,
+      password
     };
 
-    const response = await axios.post(
-      "http://localhost:4000/api/user/sign-in",
-      payload,
-      {
-        withCredentials: true, // ✅ this is the Axios equivalent of fetch's "credentials: 'include'"
-      }
+    const response = await api.post(
+      "/api/user/admin/sign-in",
+      payload
     );
     const res = response.data;
     if (!res.proceed) {
@@ -56,6 +55,11 @@ export default function AdminLoginPage() {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 7);
 
+    cookie.set("user_id", res.user.id, {
+      expires: expirationDate,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
     dispatch(setUser(res.user));
   };
 
@@ -83,37 +87,97 @@ export default function AdminLoginPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      await signIn();
+      toast({
+        title: "Sign in successful",
+        description: "Welcome back to Tembea!",
+      });
+      router.push("/");
+    } catch (error) {
+      toast({
+        title: "Google sign in failed",
+        description: "An error occurred during sign in. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <Shield className="w-6 h-6 text-purple-600" />
+    <div className="container flex items-center justify-center py-20">
+      <div className="mx-auto w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Welcome back</h1>
+          <p className="mt-2 text-muted-foreground">
+            Sign in to your Tembea account
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+            disabled={isLoading}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mr-2 h-4 w-4"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="12" r="4" />
+              <line x1="21.17" y1="8" x2="12" y2="8" />
+              <line x1="3.95" y1="6.06" x2="8.54" y2="14" />
+              <line x1="10.88" y1="21.94" x2="15.46" y2="14" />
+            </svg>
+            Sign in with Google
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-center">
-            Admin Login
-          </CardTitle>
-          <CardDescription className="text-center">
-            Sign in to access the Tembea admin dashboard
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@tembea.com"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-purple-600 hover:text-purple-700"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <Input
                   id="password"
@@ -135,6 +199,9 @@ export default function AdminLoginPage() {
                   ) : (
                     <Eye className="h-4 w-4 text-muted-foreground" />
                   )}
+                  <span className="sr-only">
+                    {showPassword ? "Hide password" : "Show password"}
+                  </span>
                 </Button>
               </div>
             </div>
@@ -146,8 +213,18 @@ export default function AdminLoginPage() {
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+
+          <div className="text-center text-sm">
+            Don't have an account?{" "}
+            <Link
+              href="/sign-up"
+              className="text-purple-600 hover:text-purple-700"
+            >
+              Sign up
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

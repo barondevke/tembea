@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { setVerificationData } from "@/redux/verificationSlice";
 import { type VerificationType } from "@/types/types";
+import api from "@/api";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -68,7 +69,7 @@ export default function SignUpPage() {
     };
 
     try {
-      const response = await axios.post("http://localhost:4000/api/user/verify", cleanedData);
+      const response = await api.post("/api/user/verify", cleanedData);
       const res = response.data;
 
       if (res.proceed) {

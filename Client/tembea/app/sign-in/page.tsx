@@ -5,7 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,9 +43,7 @@ export default function SignInPage() {
 
     const response = await axios.post(
       "http://localhost:4000/api/user/sign-in",
-      payload, {
-        withCredentials: true, // ✅ this is the Axios equivalent of fetch's "credentials: 'include'"
-      }
+      payload
     );
     const res = response.data;
     if (!res.proceed) {
@@ -54,9 +52,19 @@ export default function SignInPage() {
 
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 7);
-    
 
-    dispatch(setUser(res.user));
+    cookie.set("user_id", res.data.id, {
+      expires: expirationDate,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    cookie.set("token", res.data.token, {
+      expires: expirationDate,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    dispatch(setUser(res.data));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

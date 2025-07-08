@@ -25,6 +25,7 @@ import { setUser } from "@/redux/userSlicer";
 import { UserType, VerificationType } from "@/types/types";
 import axios from "axios";
 import { Cookies } from "react-cookie";
+import api from "@/api";
 
 export default function VerifyEmailPage() {
   const [verificationCode, setVerificationCode] = useState([
@@ -122,11 +123,13 @@ export default function VerifyEmailPage() {
       // In a real application, you would make an API call to verify the code
       // For this demo, we'll simulate a verification process
 
-      const res = await axios.get(
-        `http://localhost:4000/api/user/verify-code/${verification.id}/${parseInt(code)}`
+      const res = await api.get(
+        `api/user/verify-code/${
+          verification.id
+        }/${parseInt(code)}`
       );
 
-      console.log(res.data)
+      console.log(res.data);
       // For demo purposes, let's consider "123456" as the valid code
       if (res.data.proceed) {
         setSuccess(true);
@@ -135,11 +138,15 @@ export default function VerifyEmailPage() {
           description: "Your account has been activated.",
         });
 
-        const createUserRes = await axios.post(`http://localhost:4000/api/user/create-user`, {
-          verification,
-        }, {
-          withCredentials: true, // ✅ this is the Axios equivalent of fetch's "credentials: 'include'"
-        });
+        const createUserRes = await api.post(
+          `/api/user/create-user`,
+          {
+            verification,
+          },
+          {
+            withCredentials: true, // ✅ this is the Axios equivalent of fetch's "credentials: 'include'"
+          }
+        );
 
         const data: UserType = {
           email: createUserRes.data.data.email,
@@ -148,18 +155,12 @@ export default function VerifyEmailPage() {
           profile_image: createUserRes.data.data.profile_image,
           enabled: true,
           date_created: new Date(),
+          role: createUserRes.data.data.role,
         };
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 7);
 
         cookie.set("user_id", data.id, {
-          expires: expirationDate,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-        });
-
-        // ✅ Store Token separately
-        cookie.set("token", createUserRes.data.token, {
           expires: expirationDate,
           secure: process.env.NODE_ENV === "production",
           sameSite: "strict",
@@ -181,7 +182,6 @@ export default function VerifyEmailPage() {
 
   // Handle resend code
   const handleResendCode = async () => {
-
     toast({
       title: "Verification code resent",
       description: `A new code has been sent to ${verification.email}`,

@@ -7,6 +7,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlicer";
 import { AppDispatch } from "@/redux/store";
 import {type ChildrenType} from "@/types/types";
+import api from "@/api";
 
 function ReduxProvider({ children }: ChildrenType) {
   const cookie = new Cookies();
@@ -16,12 +17,9 @@ function ReduxProvider({ children }: ChildrenType) {
     const fetchUserData = async () => {
       try {
         const userId = cookie.get("user_id");
-
-        console.log(userId)
-
         if (userId) {
-          const response = await axios.get(
-            `http://localhost:4000/api/user/get-user/${userId}`,
+          const response = await api.get(
+            `api/user/get-user/${userId}`,
           );
           const res = response.data;
           if (res.proceed) {

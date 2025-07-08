@@ -16,7 +16,6 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<UserType>) => {
-      console.log("action.payload", action.payload);
       // Check if date_created is a Date object and convert it to ISO string
       const payload = {
         ...action.payload,

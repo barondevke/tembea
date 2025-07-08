@@ -1,10 +1,11 @@
 "use client";
 
-import type React from "react";
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { useSelector } from "react-redux";
+import { Cookies } from "react-cookie";
+
 import {
   LayoutDashboard,
   Package,
@@ -18,10 +19,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { AdminAuthProvider, useAdminAuth } from "@/lib/admin-auth";
 import { Toaster } from "@/components/ui/toaster";
-import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/store";
+import api from "@/api";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -33,34 +33,37 @@ const navigation = [
 ];
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
-  const { admin, signOut, loading } = useAdminAuth();
-  const router = useRouter();
   const pathname = usePathname();
-  const role = useSelector((state: RootState) => state.user.role);
+  const router = useRouter();
+  const cookie = new Cookies();
+
+  const [loading, setLoading] = useState(true);
+
+  const user = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    if (!loading && !admin && pathname !== "/admin/login") {
+    if (!user || !user.role) return;
+
+    if (user.role !== "admin" && pathname !== "/admin/login") {
       router.push("/admin/login");
+    } else {
+      setLoading(false);
     }
-  }, [admin, loading, router, pathname]);
+  }, [user, pathname, router]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  const signOut = async () => {
+    try {
+      await api.post("/api/logout"); // Optional: tell backend to clear session
+      localStorage.removeItem("user");
+      cookie.remove("user_id");
+      router.push("/admin/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
-  if (role !== "admin" && pathname !== "/admin/login") {
-    return <></>;
-  }
-
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
+  if (pathname !== "/admin/login" && loading) {
+    return null; // Or a spinner like <LoadingSpinner />
   }
 
   return (
@@ -77,88 +80,67 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0">
-          <div className="flex flex-col h-full">
-            <div className="p-6 border-b">
-              <h2 className="text-lg font-semibold">Tembea Admin</h2>
-              <p className="text-sm text-muted-foreground">{admin?.name}</p>
-            </div>
-            <nav className="flex-1 p-4 space-y-2">
-              {navigation.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-purple-100 text-purple-700"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
-                  >
-                    <Icon className="mr-3 h-5 w-5" />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div className="p-4 border-t">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-                onClick={signOut}
-              >
-                <LogOut className="mr-3 h-5 w-5" />
-                Sign Out
-              </Button>
-            </div>
-          </div>
+          <Sidebar user={user} pathname={pathname} onLogout={signOut} />
         </SheetContent>
       </Sheet>
 
       {/* Desktop sidebar */}
       <div className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
-        <div className="flex flex-col flex-grow bg-white border-r border-gray-200">
-          <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold">Tembea Admin</h2>
-            <p className="text-sm text-muted-foreground">{admin?.name}</p>
-          </div>
-          <nav className="flex-1 p-4 space-y-2">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-purple-100 text-purple-700"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
-                >
-                  <Icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="p-4 border-t">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={signOut}
-            >
-              <LogOut className="mr-3 h-5 w-5" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
+        <Sidebar user={user} pathname={pathname} onLogout={signOut} />
       </div>
 
       {/* Main content */}
       <div className="md:pl-64">
         <main className="p-4 md:p-8">{children}</main>
+      </div>
+    </div>
+  );
+}
+
+function Sidebar({
+  user,
+  pathname,
+  onLogout,
+}: {
+  user: { name: string };
+  pathname: string;
+  onLogout: () => void;
+}) {
+  return (
+    <div className="flex flex-col h-full bg-white border-r border-gray-200">
+      <div className="p-6 border-b">
+        <h2 className="text-lg font-semibold">Tembea Admin</h2>
+        <p className="text-sm text-muted-foreground">{user.name}</p>
+      </div>
+      <nav className="flex-1 p-4 space-y-2">
+        {navigation.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-purple-100 text-purple-700"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              <Icon className="mr-3 h-5 w-5" />
+              {item.name}
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="p-4 border-t">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+          onClick={onLogout}
+        >
+          <LogOut className="mr-3 h-5 w-5" />
+          Sign Out
+        </Button>
       </div>
     </div>
   );
@@ -170,9 +152,9 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AdminAuthProvider>
+    <>
       <AdminLayoutContent>{children}</AdminLayoutContent>
       <Toaster />
-    </AdminAuthProvider>
+    </>
   );
 }

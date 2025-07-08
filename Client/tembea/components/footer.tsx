@@ -1,6 +1,13 @@
-import Link from "next/link"
+"use client";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathName = usePathname();
+
+  if (pathName.includes("/admin")) {
+    return <></>;
+  }
   return (
     <footer className="bg-slate-900 text-slate-200">
       <div className="container py-12">
@@ -8,7 +15,8 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Tembea</h3>
             <p className="text-slate-400 mb-4">
-              Your trusted tourism advisor for amazing travel experiences worldwide.
+              Your trusted tourism advisor for amazing travel experiences
+              worldwide.
             </p>
             <div className="flex space-x-4">
               <Link href="#" className="text-slate-400 hover:text-white">
@@ -83,7 +91,10 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-slate-400 hover:text-white">
+                <Link
+                  href="/contact"
+                  className="text-slate-400 hover:text-white"
+                >
                   Contact
                 </Link>
               </li>
@@ -109,12 +120,18 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-slate-400 hover:text-white">
+                <Link
+                  href="/privacy"
+                  className="text-slate-400 hover:text-white"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/cancellation" className="text-slate-400 hover:text-white">
+                <Link
+                  href="/cancellation"
+                  className="text-slate-400 hover:text-white"
+                >
                   Cancellation Policy
                 </Link>
               </li>
@@ -184,10 +201,11 @@ export default function Footer() {
 
       <div className="border-t border-slate-800 py-6">
         <div className="container">
-          <p className="text-center text-slate-400">© {new Date().getFullYear()} Tembea. All rights reserved.</p>
+          <p className="text-center text-slate-400">
+            © {new Date().getFullYear()} Tembea. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-

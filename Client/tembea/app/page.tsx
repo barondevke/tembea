@@ -86,7 +86,7 @@ export default function Home() {
                   <Link href="/tours">Browse Tours</Link>
                 </Button>
                 <Button size="lg" variant="outline" className="border-purple-600 text-purple-600">
-                  <Link href="/auth">Sign Up</Link>
+                  <Link href="/sign-up">Sign Up</Link>
                 </Button>
               </div>
             </div>

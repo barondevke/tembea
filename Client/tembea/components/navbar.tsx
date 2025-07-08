@@ -18,14 +18,20 @@ import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [loadingButton, setLoadingButton] = useState<"sign-in" | "sign-up" | null>(null)
-  const pathname = usePathname()
-  const router = useRouter()
+  const [loadingButton, setLoadingButton] = useState<
+    "sign-in" | "sign-up" | null
+  >(null);
+  const pathname = usePathname();
+
+  if (pathname.includes("/admin")) {
+    return <></>;
+  }
+  const router = useRouter();
   const cookie = new Cookies();
   const dispatch = useDispatch<AppDispatch>();
   const user: UserType = useSelector((state: RootState) => state.user);
 
- /* const signOut = async () => {
+  /* const signOut = async () => {
     try {
       // Clear user data from Redux store
       dispatch(setUser({} as UserType));
@@ -42,17 +48,21 @@ export default function Navbar() {
   const signOut = async () => {
     try {
       // ✅ Call backend to destroy session
-      await axios.post("http://localhost:4000/api/user/sign-out", {}, {
-        withCredentials: true, // 🔥 Required to send session cookie
-      });
-  
+      await axios.post(
+        "http://localhost:4000/api/user/sign-out",
+        {},
+        {
+          withCredentials: true, // 🔥 Required to send session cookie
+        }
+      );
+
       // ✅ Clear Redux store
       dispatch(setUser({} as UserType));
-  
+
       // ✅ Optional: Clear any client cookies (just in case)
       cookie.remove("user_id");
       cookie.remove("token");
-  
+
       // ✅ Redirect
       window.location.href = "/";
     } catch (error) {
@@ -68,9 +78,7 @@ export default function Navbar() {
       if (userId && token) {
         const response = await axios.get(
           `http://localhost:4000/api/user/get-user/${userId}`,
-          {
-          
-          }
+          {}
         );
         const res = response.data;
         if (res.proceed) {
@@ -83,21 +91,17 @@ export default function Navbar() {
   };
 
   useEffect(() => {
- 
     fetchUserData();
-  },[])
+  }, []);
 
-  
   const handleClick = (page: string, button: "sign-in" | "sign-up") => {
-    setLoadingButton(button)
-    router.push(page)
-  }
+    setLoadingButton(button);
+    router.push(page);
+  };
 
   useEffect(() => {
-    setLoadingButton(null)
-  }, [pathname])
-  
-  
+    setLoadingButton(null);
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
@@ -220,25 +224,29 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex items-center gap-2">
-            <Button variant={"ghost"}
-              onClick={() => handleClick('/sign-in', 'sign-in')}
-              disabled={loadingButton === 'sign-in'}
-              className="flex items-center gap-2"
-            >
-              {loadingButton === 'sign-in' && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loadingButton === 'sign-in' ? 'Loading...' : 'Sign In'}
-            </Button>
-          
-            <Button
-              onClick={() => handleClick('/sign-up', 'sign-up')}
-              disabled={loadingButton === 'sign-up'}
-              className="flex items-center gap-2"
-            >
-              {loadingButton === 'sign-up' && <Loader2 className="h-4 w-4 animate-spin" />}
-              {loadingButton === 'sign-up' ? 'Loading...' : 'Sign Up'}
-            </Button>
-          </div>
-          
+              <Button
+                variant={"ghost"}
+                onClick={() => handleClick("/sign-in", "sign-in")}
+                disabled={loadingButton === "sign-in"}
+                className="flex items-center gap-2"
+              >
+                {loadingButton === "sign-in" && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                {loadingButton === "sign-in" ? "Loading..." : "Sign In"}
+              </Button>
+
+              <Button
+                onClick={() => handleClick("/sign-up", "sign-up")}
+                disabled={loadingButton === "sign-up"}
+                className="flex items-center gap-2"
+              >
+                {loadingButton === "sign-up" && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                {loadingButton === "sign-up" ? "Loading..." : "Sign Up"}
+              </Button>
+            </div>
           )}
         </div>
       </div>

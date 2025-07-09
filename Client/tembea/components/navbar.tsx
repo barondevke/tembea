@@ -21,7 +21,6 @@ export default function Navbar() {
   const [loadingButton, setLoadingButton] = useState<"sign-in" | "sign-up" | null>(null)
   const pathname = usePathname()
   const router = useRouter()
-  const cookie = new Cookies();
   const dispatch = useDispatch<AppDispatch>();
   const user: UserType = useSelector((state: RootState) => state.user);
 
@@ -49,9 +48,7 @@ export default function Navbar() {
       // ✅ Clear Redux store
       dispatch(setUser({} as UserType));
   
-      // ✅ Optional: Clear any client cookies (just in case)
-      cookie.remove("user_id");
-      cookie.remove("token");
+      
   
       // ✅ Redirect
       window.location.href = "/";
@@ -62,25 +59,18 @@ export default function Navbar() {
 
   const fetchUserData = async () => {
     try {
-      const userId = cookie.get("user_id");
-      const token = cookie.get("token");
-
-      if (userId && token) {
-        const response = await axios.get(
-          `http://localhost:4000/api/user/get-user/${userId}`,
-          {
-          
-          }
-        );
-        const res = response.data;
-        if (res.proceed) {
-          dispatch(setUser(res.data));
-        }
+      const res = await axios.get("http://localhost:4000/api/user/get-user/0", {
+        withCredentials: true,
+      });
+  
+      if (res.data.proceed) {
+        dispatch(setUser(res.data.data));
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("User not signed in or forbidden:", error);
     }
   };
+  
 
   useEffect(() => {
  

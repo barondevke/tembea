@@ -391,17 +391,20 @@ router.post("/sign-out", async (req, res) => {
 });
 
 router.get("/get-user/:id", requireLogin, async (req, res) => {
-  const userId = req.params.id;
+  let userId = req.params.id;
+
+  // 👇 Allow /get-user/0 to mean "me"
+  if (parseInt(userId) === 0 && req.session.user) {
+    userId = req.session.user.id;
+  }
+
   if (parseInt(userId) !== req.session.user.id) {
     return res.status(403).send({ message: "FORBIDDEN: NOT YOUR PROFILE" });
   }
+
   try {
     const conn = await dbConnection;
-
-    // Query user by ID
-    const [rows] = await conn.query("SELECT * FROM Users WHERE id = ?", [
-      userId,
-    ]);
+    const [rows] = await conn.query("SELECT * FROM Users WHERE id = ?", [userId]);
 
     if (rows.length === 0) {
       return res.send({ message: `USER NOT FOUND`, proceed: false });
@@ -427,5 +430,9 @@ router.get("/get-user/:id", requireLogin, async (req, res) => {
     return res.send("ERROR GETTING USER");
   }
 });
+
+
+
+
 
 module.exports = router;

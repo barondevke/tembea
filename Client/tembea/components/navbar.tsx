@@ -70,9 +70,10 @@ export default function Navbar() {
         }
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      console.error("User not signed in or forbidden:", error);
     }
   };
+  
 
   useEffect(() => {
     fetchUserData();

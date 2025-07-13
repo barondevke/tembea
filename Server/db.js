@@ -1,9 +1,11 @@
 const mysql = require("mysql2/promise");
+require("dotenv").config();
+
 
 const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "root",
+  host: process.env.HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
   database: "tembea"
 };
 

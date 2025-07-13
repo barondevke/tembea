@@ -35,7 +35,6 @@ export default function FeaturedTours() {
           throw new Error("Failed to fetch tours")
         }
         const data = await res.json()
-        console.log(data)
         setTours(data)
       } catch (error) {
         console.error("Error fetching featured tours:", error)

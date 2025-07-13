@@ -122,11 +122,9 @@ export default function VerifyEmailPage() {
     try {
       // In a real application, you would make an API call to verify the code
       // For this demo, we'll simulate a verification process
-
+      console.log(verification);
       const res = await api.get(
-        `api/user/verify-code/${
-          verification.id
-        }/${parseInt(code)}`
+        `api/user/verify-code/${verification.id}/${parseInt(code)}`
       );
 
       console.log(res.data);

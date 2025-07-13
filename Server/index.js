@@ -1,32 +1,33 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const bodyParser = require('body-parser');
-const axios = require('axios')
-const crypto = require('crypto')
-const session =require("express-session");
+const bodyParser = require("body-parser");
+const axios = require("axios");
+const crypto = require("crypto");
+const session = require("express-session");
 const RedisStore = require("connect-redis").RedisStore;
 const redisClient = require("./redisClient.js");
-const stripe = require('stripe')('sk_test_51R7Y9AB6OLclKHp6y0Z7Zpx1TXlpJAXLPLvoeQA8DxmNqAMqqxY4U70Y8lluWHuLeA9EhtrxxCBDhUGny3EQULWE00GHjH6q2A');
+const stripe = require("stripe")(
+  process.env.STRIPE_KEY
+);
 const toursRoutes = require("./routes/tours");
-const userRoutes = require("./routes/user")
-const wishlistRoutes = require("./routes/wishlist")
-const bookingsRoutes = require("./routes/bookings")
-const dbConnection = require("./db")
+const userRoutes = require("./routes/user");
+const wishlistRoutes = require("./routes/wishlist");
+const bookingsRoutes = require("./routes/bookings");
+const dbConnection = require("./db");
 const app = express();
-
-
-
-
-
 
 let redisStore = new RedisStore({
   client: redisClient,
   prefix: "tembea",
 });
 
-
-app.use(cors({ origin: ["http://localhost:3001","http://localhost:3000"], credentials: true }));
+app.use(
+  cors({
+    origin: ["http://localhost:3001", "http://localhost:3000"],
+    credentials: true,
+  })
+);
 app.use(
   session({
     store: redisStore,
@@ -34,7 +35,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, 
+      secure: false,
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     },
   })
@@ -92,81 +93,83 @@ const endpointSecret = "whsec_32ceab3cdb3dfb3177b4f2d5a2e1651d5adc9c664417453f18
 
   response.json({ received: true });
 });*/
-app.post('/paystack/webhook', bodyParser.raw({ type: 'application/json' }), async (req, res) => {
-  const hash = crypto
-    .createHmac('sha512', process.env.PAYSTACK_SECRET_KEY)
-    .update(req.body)
-    .digest('hex');
+app.post(
+  "/paystack/webhook",
+  bodyParser.raw({ type: "application/json" }),
+  async (req, res) => {
+    const hash = crypto
+      .createHmac("sha512", process.env.PAYSTACK_SECRET_KEY)
+      .update(req.body)
+      .digest("hex");
 
-  const signature = req.headers['x-paystack-signature'];
+    const signature = req.headers["x-paystack-signature"];
 
-  if (hash !== signature) {
-    return res.status(401).send('Invalid signature');
-  }
+    if (hash !== signature) {
+      return res.status(401).send("Invalid signature");
+    }
 
-  const event = JSON.parse(req.body);
+    const event = JSON.parse(req.body);
 
-  if (event.event === 'charge.success') {
-    const trx = event.data;
+    if (event.event === "charge.success") {
+      const trx = event.data;
 
-    const paymentDetails = {
-      transaction_id: trx.id,
-      status: trx.status,
-      payment_channel: trx.channel,
-      created_at: trx.created_at,
-      updated_at: trx.paid_at,
-      amount: trx.amount,
-      currency: trx.currency,
-      customer_email: trx.customer.email,
-      reference: trx.reference,
-    };
+      const paymentDetails = {
+        transaction_id: trx.id,
+        status: trx.status,
+        payment_channel: trx.channel,
+        created_at: trx.created_at,
+        updated_at: trx.paid_at,
+        amount: trx.amount,
+        currency: trx.currency,
+        customer_email: trx.customer.email,
+        reference: trx.reference,
+      };
 
-    console.log('✅ Payment verified:', paymentDetails);
+      console.log("✅ Payment verified:", paymentDetails);
 
-    try {
-      const conn = await dbConnection;
+      try {
+        const conn = await dbConnection;
 
-      // Find the booking
-      const [rows] = await conn.query(
-        `SELECT booking_id FROM transactions WHERE stripe_payment_id = ?`,
-        [trx.reference]
-      );
-
-      if (rows.length > 0) {
-        const bookingId = rows[0].booking_id;
-
-        await conn.query(
-          `UPDATE bookings SET status = 'Confirmed' WHERE id = ?`,
-          [bookingId]
-        );
-
-        await conn.query(
-          `UPDATE transactions SET payment_status = 'succeeded', updated_at = NOW() WHERE stripe_payment_id = ?`,
+        // Find the booking
+        const [rows] = await conn.query(
+          `SELECT booking_id FROM transactions WHERE stripe_payment_id = ?`,
           [trx.reference]
         );
 
-        console.log(`✅ Booking ${bookingId} confirmed.`);
-      } else {
-        console.log(`❌ No booking found for reference: ${trx.reference}`);
-      }
-    } catch (err) {
-      console.error('❌ Webhook DB Error:', err);
-    }
-  }
+        if (rows.length > 0) {
+          const bookingId = rows[0].booking_id;
 
-  res.sendStatus(200);
-});
+          await conn.query(
+            `UPDATE bookings SET status = 'Confirmed' WHERE id = ?`,
+            [bookingId]
+          );
+
+          await conn.query(
+            `UPDATE transactions SET payment_status = 'succeeded', updated_at = NOW() WHERE stripe_payment_id = ?`,
+            [trx.reference]
+          );
+
+          console.log(`✅ Booking ${bookingId} confirmed.`);
+        } else {
+          console.log(`❌ No booking found for reference: ${trx.reference}`);
+        }
+      } catch (err) {
+        console.error("❌ Webhook DB Error:", err);
+      }
+    }
+
+    res.sendStatus(200);
+  }
+);
 
 app.use(express.json());
 
-
 app.use("/api/tours", toursRoutes);
 
-app.use("/api/user", userRoutes)
+app.use("/api/user", userRoutes);
 
-app.use("/api/wishlist",wishlistRoutes)
-app.use("/api/bookings",bookingsRoutes)
-
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/bookings", bookingsRoutes);
 
 /*app.post('/create-checkout-session', async (req, res) => {
   const { booking_id, user_id, amount, selectedTravelers } = req.body;
@@ -202,41 +205,48 @@ app.use("/api/bookings",bookingsRoutes)
   }
 });*/
 
-app.post('/api/initiate-payment', async (req, res) => {
+app.post("/api/initiate-payment", async (req, res) => {
   const { email, amount, subaccount, user_id, booking_id } = req.body;
 
   if (!email || !amount || !subaccount || !user_id || !booking_id) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    console.log('🔄 Initiating payment with:', { email, amount, subaccount });
+    console.log("🔄 Initiating payment with:", { email, amount, subaccount });
 
     const response = await axios.post(
-      'https://api.paystack.co/transaction/initialize',
+      "https://api.paystack.co/transaction/initialize",
       {
         email,
-       amount:amount*100*130,
-       currency:"KES",
+        amount: amount * 100 * 130,
+        currency: "KES",
         subaccount,
-      callback_url:`http://localhost:3000/booking/success?bookingId=${booking_id}` ,
+        callback_url: `http://localhost:3000/booking/success?bookingId=${booking_id}`,
         metadata: { booking_id, user_id },
       },
       {
         headers: {
           Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
 
-    console.log('✅ Paystack init response:', response.data);
+    console.log("✅ Paystack init response:", response.data);
 
     const conn = await dbConnection;
     await conn.query(
       `INSERT INTO transactions (user_id, booking_id, stripe_payment_id, amount, currency, payment_status, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [user_id, booking_id, response.data.data.reference, amount*100*130, 'KES', 'Pending']
+      [
+        user_id,
+        booking_id,
+        response.data.data.reference,
+        amount * 100 * 130,
+        "KES",
+        "Pending",
+      ]
     );
 
     return res.status(200).json({
@@ -244,14 +254,18 @@ app.post('/api/initiate-payment', async (req, res) => {
       reference: response.data.data.reference,
     });
   } catch (error) {
-    console.error('❌ Payment init error:', error.response?.data || error.message || error);
+    console.error(
+      "❌ Payment init error:",
+      error.response?.data || error.message || error
+    );
     return res.status(500).json({
-      error: error.response?.data || error.message || 'Failed to initiate payment',
+      error:
+        error.response?.data || error.message || "Failed to initiate payment",
     });
   }
 });
 
-app.get('/success', (req, res) => {
+app.get("/success", (req, res) => {
   res.send(`
     <html>
       <head>
@@ -286,10 +300,6 @@ app.get('/success', (req, res) => {
     </html>
   `);
 });
-
-
-
-
 
 app.listen(4000, () => {
   console.log("Server running on http://localhost:4000");

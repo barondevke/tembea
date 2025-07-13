@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { useSelector } from "react-redux";
 import { Cookies } from "react-cookie";
 
 import {
@@ -20,8 +19,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Toaster } from "@/components/ui/toaster";
-import { RootState } from "@/redux/store";
+import { RootState, AppDispatch } from "@/redux/store";
 import api from "@/api";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "@/redux/userSlicer";
+import { UserType } from "@/types/types";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -36,10 +38,12 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const cookie = new Cookies();
+    const dispatch = useDispatch<AppDispatch>();
+  const user: UserType = useSelector((state: RootState) => state.user);
+
 
   const [loading, setLoading] = useState(true);
 
-  const user = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
     if (!user || !user.role) return;
@@ -53,9 +57,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      await api.post("/api/logout"); // Optional: tell backend to clear session
-      localStorage.removeItem("user");
+      await api.post("/api/user/sign-out"); // Optional: tell backend to clear session
       cookie.remove("user_id");
+      dispatch(setUser({} as UserType));
       router.push("/admin/login");
     } catch (error) {
       console.error("Logout error:", error);

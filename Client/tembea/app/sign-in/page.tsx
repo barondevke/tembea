@@ -21,6 +21,7 @@ import { Cookies } from "react-cookie";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/userSlicer";
 import { AppDispatch } from "@/redux/store";
+import api from "@/api";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -41,8 +42,8 @@ export default function SignInPage() {
       password,
     };
 
-    const response = await axios.post(
-      "http://localhost:4000/api/user/sign-in",
+    const response = await api.post(
+      "/api/user/sign-in",
       payload
     );
     const res = response.data;
@@ -53,18 +54,12 @@ export default function SignInPage() {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 7);
 
-    cookie.set("user_id", res.data.id, {
+    cookie.set("user_id", res.user.id, {
       expires: expirationDate,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
-
-    cookie.set("token", res.data.token, {
-      expires: expirationDate,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-    });
-    dispatch(setUser(res.data));
+    dispatch(setUser(res.user));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

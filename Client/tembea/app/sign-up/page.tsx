@@ -59,7 +59,6 @@ export default function SignUpPage() {
   };
 
   const defaultSignUp = async (): Promise<void> => {
-    console.log("called")
     const cleanedData: VerificationType = {
       name: removeTrailingWhitespace(name),
       email: removeTrailingWhitespace(email),

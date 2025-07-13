@@ -15,6 +15,7 @@ import { UserType } from "@/types/types";
 import axios from "axios";
 import { Cookies } from "react-cookie";
 import { usePathname, useRouter } from "next/navigation";
+import api from "@/api";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,29 +32,13 @@ export default function Navbar() {
   const dispatch = useDispatch<AppDispatch>();
   const user: UserType = useSelector((state: RootState) => state.user);
 
-  /* const signOut = async () => {
-    try {
-      // Clear user data from Redux store
-      dispatch(setUser({} as UserType));
-      cookie.remove("user_id");
-      cookie.remove("token");
 
-      // Redirect to the home page
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };*/
 
   const signOut = async () => {
     try {
       // ✅ Call backend to destroy session
-      await axios.post(
-        "http://localhost:4000/api/user/sign-out",
-        {},
-        {
-          withCredentials: true, // 🔥 Required to send session cookie
-        }
+      await api.post(
+        "api/user/sign-out"
       );
 
       // ✅ Clear Redux store
@@ -61,7 +46,6 @@ export default function Navbar() {
 
       // ✅ Optional: Clear any client cookies (just in case)
       cookie.remove("user_id");
-      cookie.remove("token");
 
       // ✅ Redirect
       window.location.href = "/";
@@ -71,16 +55,16 @@ export default function Navbar() {
   };
 
   const fetchUserData = async () => {
+    console.log("fetching user")
     try {
       const userId = cookie.get("user_id");
-      const token = cookie.get("token");
-
-      if (userId && token) {
-        const response = await axios.get(
-          `http://localhost:4000/api/user/get-user/${userId}`,
-          {}
+      console.log(userId)
+      if (userId) {
+        const response = await api.get(
+          `api/user/get-user/${userId}`
         );
         const res = response.data;
+        console.log(response.data,"this is response")
         if (res.proceed) {
           dispatch(setUser(res.data));
         }

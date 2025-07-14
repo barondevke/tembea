@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { Search, Eye, Calendar, User } from "lucide-react"
+import axios from 'axios'
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -58,16 +59,35 @@ const mockBookings = [
 ]
 
 export default function BookingsPage() {
-  const [bookings] = useState(mockBookings)
+  const [bookings, setBookings] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedBooking, setSelectedBooking] = useState<(typeof mockBookings)[0] | null>(null)
-
+  
+  useEffect(() => {
+    axios.get("http://localhost:4000/api/bookings")
+      .then(res => setBookings(res.data))
+      .catch(err => console.error("Error fetching bookings", err))
+  }, [])
+  
   const filteredBookings = bookings.filter(
-    (booking) =>
-      booking.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.tourName.toLowerCase().includes(searchTerm.toLowerCase()),
+    (booking: any) =>
+      String(booking.bookingId).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.tourName?.toLowerCase().includes(searchTerm.toLowerCase())
   )
+  const formatDateTime = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+  
+  
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -120,8 +140,9 @@ export default function BookingsPage() {
             </TableHeader>
             <TableBody>
               {filteredBookings.map((booking) => (
-                <TableRow key={booking.id}>
-                  <TableCell className="font-medium">{booking.id}</TableCell>
+                <TableRow key={booking.bookingId}>
+                  <TableCell className="font-medium">{booking.bookingId}</TableCell>
+
                   <TableCell>
                     <div>
                       <p className="font-medium">{booking.customerName}</p>
@@ -132,7 +153,8 @@ export default function BookingsPage() {
                   <TableCell>
                     <div className="flex items-center">
                       <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                      {booking.startDate}
+                      <p>{formatDateTime(booking.startDate)}</p>
+
                     </div>
                   </TableCell>
                   <TableCell>
@@ -163,8 +185,9 @@ export default function BookingsPage() {
                             <div className="grid grid-cols-2 gap-4">
                               <div>
                                 <p className="text-sm font-medium">Booking ID</p>
-                                <p className="text-sm text-muted-foreground">{selectedBooking.id}</p>
-                              </div>
+                                <p className="text-sm text-muted-foreground">{selectedBooking.bookingId}</p>
+
+                               </div>
                               <div>
                                 <p className="text-sm font-medium">Status</p>
                                 <Badge className={getStatusColor(selectedBooking.status)}>

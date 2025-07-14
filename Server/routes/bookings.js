@@ -88,6 +88,37 @@ router.post("/create", async (req, res) => {
       return res.status(500).json({ message: "Server error" });
     }
   });
+
+  router.get("/", async (req, res) => {
+    try {
+      const conn = await dbConnection;
+  
+      const [rows] = await conn.query(`
+        SELECT 
+          b.id AS bookingId,
+          b.start_date AS startDate,
+          b.end_date AS endDate,
+          b.travelers,
+          b.price AS totalAmount,
+          b.status,
+          b.created_at,
+          b.updated_at,
+          u.name AS customerName,
+          u.email AS customerEmail,
+          p.title AS tourName
+        FROM bookings b
+        JOIN users u ON b.user_id = u.id
+        JOIN products p ON b.product_id = p.id
+        ORDER BY b.created_at DESC
+      `);
+  
+      res.json(rows);
+    } catch (err) {
+      console.error("Error retrieving bookings:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+  
   
   
 module.exports = router; 

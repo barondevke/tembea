@@ -277,15 +277,18 @@ router.get("/filter", async (req, res) => {
       const product = productRows[0];
   
       // Get seller's subaccount_code
-      const [sellerRows] = await conn.query(
-        `SELECT s.subaccount_code 
-         FROM sellers s 
-         JOIN products p ON p.seller_id = s.id 
-         WHERE p.id = ?`,
-        [tourId]
-      );
-      const subaccount_code = sellerRows[0]?.subaccount_code || null;
-  
+      // Replace the subaccount_code section with this:
+const [sellerRows] = await conn.query(
+  `SELECT s.name AS seller_name, s.subaccount_code 
+   FROM sellers s 
+   JOIN products p ON p.seller_id = s.id 
+   WHERE p.id = ?`,
+  [tourId]
+);
+
+const seller_name = sellerRows[0]?.seller_name || null;
+const subaccount_code = sellerRows[0?.subaccount_code] || null;
+
       // Get related data
       const [images] = await conn.query("SELECT image_url FROM product_images WHERE product_id = ?", [tourId]);
       const [reviews] = await conn.query("SELECT name, date, rating, comment, avatar FROM reviews WHERE product_id = ?", [tourId]);
@@ -302,7 +305,8 @@ router.get("/filter", async (req, res) => {
         included: included.map(i => i.item),
         notIncluded: notIncluded.map(i => i.item),
         itinerary,
-        subaccount_code, // 🔑 Add this field to the final response
+        subaccount_code, 
+        seller_name// 🔑 Add this field to the final response
       });
   
     } catch (err) {
@@ -319,33 +323,27 @@ router.get("/filter", async (req, res) => {
 // POST new tour
 router.post("/", async (req, res) => {
   const {
-    title, location, duration, price, discount_price, discount, rating, description,featured,continent,category,
-    reviews = [], images = [], highlights = [], included = [], notIncluded = [], itinerary = []
+    title, location, duration, price, discount_price, discount, rating, description,
+    featured, continent, category, seller_id, // 🆕 added seller_id
+     images = [], highlights = [], included = [], notIncluded = [], itinerary = []
   } = req.body;
 
   const conn = await dbConnection;
 
   try {
     await conn.beginTransaction();
+    console.log(req.body)
 
     const [productResult] = await conn.execute(
-      `INSERT INTO products (title, location, duration, price, discount_price, discount, rating, description,featured,category,continent)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [title, location, duration, price, discount_price, discount, rating, description,featured,category,continent]
+      `INSERT INTO products (title, location, duration, price, discount_price, discount, rating, description, featured, category, continent, seller_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, location, duration, price, discount_price, discount, rating, description, featured, category, continent, seller_id]
     );
     const productId = productResult.insertId;
 
     const insertPromises = [];
 
-    for (const review of reviews) {
-      insertPromises.push(
-        conn.execute(
-          `INSERT INTO reviews (product_id, name, date, rating, comment, avatar)
-           VALUES (?, ?, ?, ?, ?, ?)`,
-          [productId, review.name, review.date, review.rating, review.comment, review.avatar]
-        )
-      );
-    }
+   
 
     for (const url of images) {
       insertPromises.push(conn.execute(
@@ -394,6 +392,116 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: "Insert failed", details: err.message });
   }
 });
+
+// routes/products.js (or wherever your product routes are)
+router.put("/:id", async (req, res) => {
+  const productId = req.params.id
+  const {
+    title,
+    location,
+    duration,
+    price,
+    discount_price,
+    discount,
+    rating,
+    description,
+    featured,
+    continent,
+    category,
+    images = [],
+    reviews = [], // optional, usually not edited here
+    highlights = [],
+    included = [],
+    notIncluded = [],
+    itinerary = []
+  } = req.body
+
+  const conn = await dbConnection
+
+  try {
+    await conn.beginTransaction()
+
+    // Update main product
+    await conn.query(
+      `UPDATE products SET 
+        title = ?, location = ?, duration = ?, price = ?, 
+        discount_price = ?, discount = ?, rating = ?, description = ?, 
+        featured = ?, continent = ?, category = ?
+       WHERE id = ?`,
+      [
+        title, location, duration, price,
+        discount_price, discount, rating, description,
+        featured, continent, category, productId
+      ]
+    )
+
+    // Delete & re-insert product_images
+    await conn.query("DELETE FROM product_images WHERE product_id = ?", [productId])
+    for (const img of images) {
+      await conn.query("INSERT INTO product_images (product_id, image_url) VALUES (?, ?)", [productId, img])
+    }
+
+    // Delete & re-insert highlights
+    await conn.query("DELETE FROM product_highlights WHERE product_id = ?", [productId])
+    for (const h of highlights) {
+      await conn.query("INSERT INTO product_highlights (product_id, highlight) VALUES (?, ?)", [productId, h])
+    }
+
+    // Included items
+    await conn.query("DELETE FROM product_included WHERE product_id = ?", [productId])
+    for (const i of included) {
+      await conn.query("INSERT INTO product_included (product_id, item) VALUES (?, ?)", [productId, i])
+    }
+
+    // Not included items
+    await conn.query("DELETE FROM product_not_included WHERE product_id = ?", [productId])
+    for (const ni of notIncluded) {
+      await conn.query("INSERT INTO product_not_included (product_id, item) VALUES (?, ?)", [productId, ni])
+    }
+
+    // Itinerary
+    await conn.query("DELETE FROM product_itinerary WHERE product_id = ?", [productId])
+    for (const day of itinerary) {
+      await conn.query(
+        "INSERT INTO product_itinerary (product_id, day, title, description) VALUES (?, ?, ?, ?)",
+        [productId, day.day, day.title, day.description]
+      )
+    }
+
+    await conn.commit()
+    res.json({ message: "Product updated successfully" })
+  } catch (err) {
+    console.error("PUT /api/products/:id error:", err)
+    await conn.rollback()
+    res.status(500).json({ error: "Server error", details: err.message })
+  }
+})
+
+// DELETE /api/products/:id
+router.delete("/:id", async (req, res) => {
+  const productId = req.params.id;
+  const conn = await dbConnection;
+
+  try {
+    const [result] = await conn.query(
+      "UPDATE products SET status = 'deleted' WHERE id = ?",
+      [productId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    res.json({ message: "Product marked as deleted" });
+  } catch (err) {
+    console.error("DELETE /products/:id error:", err);
+    res.status(500).json({ error: "Server error", details: err.message });
+  }
+});
+
+
+
+
 
 
 

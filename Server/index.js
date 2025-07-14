@@ -7,13 +7,12 @@ const crypto = require("crypto");
 const session = require("express-session");
 const RedisStore = require("connect-redis").RedisStore;
 const redisClient = require("./redisClient.js");
-const stripe = require("stripe")(
-  process.env.STRIPE_KEY
-);
+
 const toursRoutes = require("./routes/tours");
 const userRoutes = require("./routes/user");
 const wishlistRoutes = require("./routes/wishlist");
 const bookingsRoutes = require("./routes/bookings");
+const sellersRoutes = require("./routes/sellers")
 const dbConnection = require("./db");
 const app = express();
 
@@ -170,6 +169,7 @@ app.use("/api/user", userRoutes);
 
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/bookings", bookingsRoutes);
+app.use("/api/sellers",sellersRoutes)
 
 /*app.post('/create-checkout-session', async (req, res) => {
   const { booking_id, user_id, amount, selectedTravelers } = req.body;

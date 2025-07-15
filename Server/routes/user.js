@@ -329,8 +329,8 @@ router.post("/admin/sign-in", async (req, res) => {
     const conn = await dbConnection;
 
     const [rows] = await conn.query(
-      "SELECT * FROM Users WHERE email = ? AND enabled = TRUE AND role=?",
-      [email, "admin"]
+      "SELECT * FROM Users WHERE email = ? AND status = ? AND role=?",
+      [email,"active", "admin"]
     );
 
     if (rows.length === 0) {
@@ -349,7 +349,7 @@ router.post("/admin/sign-in", async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      enabled: user.enabled,
+      status: user.status,
       profile_image: user.profile_image,
       date_created: user.date_created, // ✅ include this!
       role: user.role,
@@ -430,6 +430,99 @@ router.get("/get-user/:id", requireLogin, async (req, res) => {
     return res.send("ERROR GETTING USER");
   }
 });
+
+router.get("/admin/users", async (req, res) => {
+  try {
+    const conn = await dbConnection;
+
+    const [rows] = await conn.query(`
+      SELECT 
+        u.id, u.name, u.email, u.date_created,
+        u.status,
+        (SELECT MAX(login_time) FROM user_sessions WHERE user_id = u.id) AS last_login
+      FROM users u
+    `);
+
+    res.status(200).json(rows);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/admin/users/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const conn = await dbConnection;
+
+    // Basic info + total spent (confirmed only) + last login
+    const [[user]] = await conn.query(`
+      SELECT 
+        u.id, u.name, u.email, u.date_created, u.status,
+        (SELECT MAX(login_time) FROM user_sessions WHERE user_id = u.id) AS last_login,
+        (SELECT COUNT(*) FROM bookings WHERE user_id = u.id) AS total_bookings,
+        (SELECT COALESCE(SUM(price), 0) FROM bookings WHERE user_id = u.id AND status = 'Confirmed') AS total_spent
+      FROM users u
+      WHERE u.id = ?
+    `, [userId]);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Transaction history = confirmed bookings
+    const [transactions] = await conn.query(`
+      SELECT id, price AS amount, status, created_at
+      FROM bookings
+      WHERE user_id = ? AND status = 'Confirmed'
+      ORDER BY created_at DESC
+    `, [userId]);
+
+    // Bookings with tour name
+    const [bookings] = await conn.query(`
+      SELECT 
+        b.id, b.status, b.travelers, b.price, b.start_date, b.end_date,
+        p.title AS tour_title
+      FROM bookings b
+      JOIN products p ON b.product_id = p.id
+      WHERE b.user_id = ?
+      ORDER BY b.created_at DESC
+    `, [userId]);
+
+    res.status(200).json({
+      ...user,
+      transactions,
+      bookings
+    });
+  } catch (err) {
+    console.error("Error fetching user details:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.patch("/admin/users/:id/deactivate", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const conn = await dbConnection;
+
+    const [result] = await conn.query(
+      `UPDATE users SET status = 'inactive' WHERE id = ?`,
+      [userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User deactivated successfully" });
+  } catch (err) {
+    console.error("Error deactivating user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 
 

@@ -1,70 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { Search, Download, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
+import axios from 'axios'
 // Mock data
-const mockTransactions = [
-  {
-    id: "TXN001",
-    bookingId: "B12345",
-    customerName: "John Doe",
-    amount: 3798,
-    type: "payment",
-    status: "completed",
-    paymentMethod: "Credit Card",
-    date: "2023-08-10T14:30:00Z",
-    description: "Serengeti Safari Adventure - 2 travelers",
-  },
-  {
-    id: "TXN002",
-    bookingId: "B12346",
-    customerName: "Jane Smith",
-    amount: 1299,
-    type: "payment",
-    status: "pending",
-    paymentMethod: "PayPal",
-    date: "2023-08-12T09:15:00Z",
-    description: "Bali Beach Retreat - 1 traveler",
-  },
-  {
-    id: "TXN003",
-    bookingId: "B12340",
-    customerName: "Bob Wilson",
-    amount: 950,
-    type: "refund",
-    status: "completed",
-    paymentMethod: "Credit Card",
-    date: "2023-08-14T16:45:00Z",
-    description: "Cancellation refund - Iceland Tour",
-  },
-  {
-    id: "TXN004",
-    bookingId: "B12347",
-    customerName: "Mike Johnson",
-    amount: 7497,
-    type: "payment",
-    status: "completed",
-    paymentMethod: "Bank Transfer",
-    date: "2023-08-15T11:20:00Z",
-    description: "Kyoto Cultural Journey - 3 travelers",
-  },
-]
+
 
 export default function TransactionsPage() {
-  const [transactions] = useState(mockTransactions)
+  
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [transactions, setTransactions] = useState<any[]>([]);
+
+useEffect(() => {
+  axios.get("http://localhost:4000/api/transactions")
+    .then(res => setTransactions(res.data))
+    .catch(err => console.error("Failed to load transactions:", err));
+}, []);
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
-      transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(transaction.id).toLowerCase().includes(searchTerm.toLowerCase())
+    ||
       transaction.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.bookingId.toLowerCase().includes(searchTerm.toLowerCase())
 
@@ -225,28 +188,29 @@ export default function TransactionsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTransactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="font-medium">{transaction.id}</TableCell>
-                  <TableCell>{transaction.bookingId}</TableCell>
-                  <TableCell>{transaction.customerName}</TableCell>
-                  <TableCell className="font-medium">
-                    <span className={transaction.type === "refund" ? "text-red-600" : "text-green-600"}>
-                      {transaction.type === "refund" ? "-" : "+"}${transaction.amount.toLocaleString()}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getTypeColor(transaction.type)}>{transaction.type}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(transaction.status)}>{transaction.status}</Badge>
-                  </TableCell>
-                  <TableCell>{transaction.paymentMethod}</TableCell>
-                  <TableCell>{formatDate(transaction.date)}</TableCell>
-                  <TableCell className="max-w-xs truncate">{transaction.description}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+  {filteredTransactions.map((transaction) => (
+    <TableRow key={transaction.id}>
+      <TableCell className="font-medium">{transaction.id}</TableCell>
+      <TableCell>{transaction.bookingId}</TableCell>
+      <TableCell>{transaction.customerName}</TableCell>
+      <TableCell className="font-medium">
+        <span className={transaction.type === "refund" ? "text-red-600" : "text-green-600"}>
+          {transaction.type === "refund" ? "-" : "+"}${transaction.amount.toLocaleString()}
+        </span>
+      </TableCell>
+      <TableCell>
+        <Badge className={getTypeColor(transaction.type)}>{transaction.type}</Badge>
+      </TableCell>
+      <TableCell>
+        <Badge className={getStatusColor(transaction.status)}>{transaction.status}</Badge>
+      </TableCell>
+      <TableCell>{transaction.paymentMethod}</TableCell>
+      <TableCell>{formatDate(transaction.date)}</TableCell>
+      <TableCell className="max-w-xs truncate">{transaction.description}</TableCell>
+    </TableRow>
+  ))}
+</TableBody>
+
           </Table>
         </CardContent>
       </Card>

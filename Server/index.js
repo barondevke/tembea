@@ -9,6 +9,7 @@ const RedisStore = require("connect-redis").RedisStore;
 const redisClient = require("./redisClient.js");
 
 const toursRoutes = require("./routes/tours");
+const transactionRoutes = require("./routes/transactions.js")
 const userRoutes = require("./routes/user");
 const wishlistRoutes = require("./routes/wishlist");
 const bookingsRoutes = require("./routes/bookings");
@@ -170,6 +171,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/bookings", bookingsRoutes);
 app.use("/api/sellers",sellersRoutes)
+app.use("/api/transactions",transactionRoutes)
 
 /*app.post('/create-checkout-session', async (req, res) => {
   const { booking_id, user_id, amount, selectedTravelers } = req.body;
@@ -300,6 +302,8 @@ app.get("/success", (req, res) => {
     </html>
   `);
 });
+
+
 
 app.listen(4000, () => {
   console.log("Server running on http://localhost:4000");

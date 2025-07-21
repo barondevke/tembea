@@ -148,6 +148,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
         travelers: selectedTravelers,
         price: calculateTotalPrice(tour.price, selectedTravelers),
       });
+      console.log(bookingResponse)
   
       const bookingId = bookingResponse.data.booking_id;
   
@@ -159,6 +160,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
       user_id: user.id,
       booking_id: bookingId,
     });
+    console.log(paymentResponse)
 
     const { authorization_url } = paymentResponse.data;
 

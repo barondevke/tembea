@@ -209,32 +209,38 @@ router.get("/filter", async (req, res) => {
       );
   
       // Main query
-      const [tours] = await conn.query(
-        `
-        SELECT 
-          p.id,
-          p.title,
-          p.location,
-          p.duration,
-          p.price,
-          p.rating,
-          p.discount,
-          p.featured,
-          p.category,
-          p.continent,
-          (
-            SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id
-          ) AS reviews,
-          (
-            SELECT image_url FROM product_images pi WHERE pi.product_id = p.id LIMIT 1
-          ) AS image
-        FROM products p
-        ${where}
-        ${orderBy}
-        LIMIT ? OFFSET ?
-        `,
-        [...params, parseInt(limit), offset]
-      );
+
+      // Ensure the base filter includes only active tours
+const statusFilter = "p.status = 'active'";
+const finalWhere = where ? `${where} AND ${statusFilter}` : `WHERE ${statusFilter}`;
+
+const [tours] = await conn.query(
+  `
+  SELECT 
+    p.id,
+    p.title,
+    p.location,
+    p.duration,
+    p.price,
+    p.rating,
+    p.discount,
+    p.featured,
+    p.category,
+    p.continent,
+    (
+      SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id
+    ) AS reviews,
+    (
+      SELECT image_url FROM product_images pi WHERE pi.product_id = p.id LIMIT 1
+    ) AS image
+  FROM products p
+  ${finalWhere}
+  ${orderBy}
+  LIMIT ? OFFSET ?
+  `,
+  [...params, parseInt(limit), offset]
+);
+
   
       // Format results
       const formatted = tours.map((tour) => ({
@@ -279,7 +285,7 @@ router.get("/filter", async (req, res) => {
       // Get seller's subaccount_code
       // Replace the subaccount_code section with this:
 const [sellerRows] = await conn.query(
-  `SELECT s.name AS seller_name, s.subaccount_code 
+  `SELECT s.name AS seller_name,s.subaccount_code 
    FROM sellers s 
    JOIN products p ON p.seller_id = s.id 
    WHERE p.id = ?`,
@@ -287,7 +293,8 @@ const [sellerRows] = await conn.query(
 );
 
 const seller_name = sellerRows[0]?.seller_name || null;
-const subaccount_code = sellerRows[0?.subaccount_code] || null;
+const subaccount_code = sellerRows[0]?.subaccount_code || null;
+
 
       // Get related data
       const [images] = await conn.query("SELECT image_url FROM product_images WHERE product_id = ?", [tourId]);
@@ -398,6 +405,7 @@ router.put("/:id", async (req, res) => {
   const productId = req.params.id
   const {
     title,
+    status,
     location,
     duration,
     price,
@@ -424,12 +432,12 @@ router.put("/:id", async (req, res) => {
     // Update main product
     await conn.query(
       `UPDATE products SET 
-        title = ?, location = ?, duration = ?, price = ?, 
+        status = ?,title = ?, location = ?, duration = ?, price = ?, 
         discount_price = ?, discount = ?, rating = ?, description = ?, 
         featured = ?, continent = ?, category = ?
        WHERE id = ?`,
       [
-        title, location, duration, price,
+        status,title, location, duration, price,
         discount_price, discount, rating, description,
         featured, continent, category, productId
       ]
@@ -484,7 +492,7 @@ router.delete("/:id", async (req, res) => {
 
   try {
     const [result] = await conn.query(
-      "UPDATE products SET status = 'deleted' WHERE id = ?",
+      "UPDATE products SET status = 'inactive' WHERE id = ?",
       [productId]
     );
 

@@ -90,6 +90,26 @@ const [dynamicInputs, setDynamicInputs] = useState({
 });
 const [itineraryInput, setItineraryInput] = useState({ day: "", title: "", description: "" });
 const [reviewInput, setReviewInput] = useState({ name: "", date: "", rating: "", comment: "", avatar: "" });
+const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = Array.from(e.target.files || []);
+  const newFiles = [...selectedFiles, ...files];
+  const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+
+  setSelectedFiles(newFiles);
+  setImagePreviews(newPreviews);
+};
+
+const handleRemoveImage = (index: number) => {
+  const updatedFiles = [...selectedFiles];
+  const updatedPreviews = [...imagePreviews];
+  updatedFiles.splice(index, 1);
+  updatedPreviews.splice(index, 1);
+  setSelectedFiles(updatedFiles);
+  setImagePreviews(updatedPreviews);
+};
 
   
   const { toast } = useToast()
@@ -136,16 +156,68 @@ const [reviewInput, setReviewInput] = useState({ name: "", date: "", rating: "",
     }
   
     try {
-      const res = await axios.post("http://localhost:4000/api/tours", newProduct);
+      // Upload images first
+      const uploadedUrls: string[] = [];
+  
+      for (const file of selectedFiles) {
+        const formData = new FormData();
+        formData.append("image", file);
+  
+        const res = await fetch("http://localhost:4000/api/upload-image", {
+          method: "POST",
+          body: formData,
+        });
+  
+        const data = await res.json();
+        if (data.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+  
+      // Add image URLs to newProduct and submit
+      const finalProduct = {
+        ...newProduct,
+        images: uploadedUrls,
+      };
+  
+      await axios.post("http://localhost:4000/api/tours", finalProduct);
   
       toast({
         title: "Product Added",
         description: "The product was successfully created.",
       });
+      window.console.log("✅ Product successfully added:", finalProduct.title);
+
+      // ✅ Reset form and close dialog
+      setNewProduct({
+        title: "",
+        location: "",
+        duration: "",
+        price: "",
+        discount_price: "",
+        discount: "",
+        rating: "",
+        description: "",
+        featured: false,
+        continent: "",
+        category: "",
+        images: [],
+        highlights: [],
+        included: [],
+        notIncluded: [],
+        itinerary: [],
+        seller_id: null,
+      });
+      setSelectedFiles([]);
+      setImagePreviews([]);
+      setDynamicInputs({ highlights: "", included: "", notIncluded: "" });
+      setItineraryInput({ day: "", title: "", description: "" });
+      setIsAddDialogOpen(false);
   
+      router.push("/admin/products");
+      setIsAddDialogOpen(false);
   
-      
-      router.push("/admin/products")
+      router.push("/admin/products");
     } catch (err: any) {
       toast({
         title: "Error Adding Product",
@@ -153,7 +225,9 @@ const [reviewInput, setReviewInput] = useState({ name: "", date: "", rating: "",
         variant: "destructive",
       });
     }
-  }
+  };
+  
+ 
   
 
 
@@ -244,32 +318,38 @@ const [reviewInput, setReviewInput] = useState({ name: "", date: "", rating: "",
 
       {/* Upload Image URL */}
       <div className="grid gap-2">
-        <Label htmlFor="imageUpload">Image URLs</Label>
-        <div className="flex gap-2">
-          <Input
-            id="imageUpload"
-            placeholder="Paste image URL"
-            value={imageInput}
-            onChange={(e) => setImageInput(e.target.value)}
+  <Label htmlFor="imageUpload">Upload Images</Label>
+  <Input
+    id="imageUpload"
+    type="file"
+    accept="image/*"
+    multiple
+    onChange={handleImageSelect}
+  />
+  {imagePreviews.length > 0 && (
+    <div className="grid grid-cols-3 gap-3 mt-3">
+      {imagePreviews.map((src, i) => (
+        <div key={i} className="relative group">
+          <img
+            src={src}
+            alt={`Preview ${i}`}
+            className="w-full h-32 object-cover rounded-md border"
           />
-          <Button
+          <button
             type="button"
-            onClick={() => {
-              if (imageInput) {
-                setNewProduct({ ...newProduct, images: [...newProduct.images, imageInput] });
-                setImageInput("");
-              }
-            }}
+            onClick={() => handleRemoveImage(i)}
+            className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 text-xs opacity-0 group-hover:opacity-100 transition"
+            title="Remove"
           >
-            Add
-          </Button>
+            ✕
+          </button>
         </div>
-        <ul className="text-sm text-muted-foreground list-disc ml-5">
-          {newProduct.images.map((img, i) => (
-            <li key={i}>{img}</li>
-          ))}
-        </ul>
-      </div>
+      ))}
+    </div>
+  )}
+</div>
+
+
 
       {/* Highlights, Included, Not Included, Itinerary, Reviews */}
       {[

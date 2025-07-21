@@ -14,6 +14,7 @@ const userRoutes = require("./routes/user");
 const wishlistRoutes = require("./routes/wishlist");
 const bookingsRoutes = require("./routes/bookings");
 const sellersRoutes = require("./routes/sellers")
+const uploadImage = require("./routes/upload.js")
 const dbConnection = require("./db");
 const app = express();
 
@@ -107,6 +108,8 @@ app.post(
     if (hash !== signature) {
       return res.status(401).send("Invalid signature");
     }
+    
+    res.sendStatus(200);
 
     const event = JSON.parse(req.body);
 
@@ -158,7 +161,6 @@ app.post(
       }
     }
 
-    res.sendStatus(200);
   }
 );
 
@@ -172,6 +174,7 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/bookings", bookingsRoutes);
 app.use("/api/sellers",sellersRoutes)
 app.use("/api/transactions",transactionRoutes)
+app.use("/api/upload-image",uploadImage)
 
 /*app.post('/create-checkout-session', async (req, res) => {
   const { booking_id, user_id, amount, selectedTravelers } = req.body;

@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
     };
 
     const response = await api.post(
-      "/api/user/admin/sign-in",
+      "http://localhost:4000/api/user/admin/sign-in",
       payload
     );
     const res = response.data;

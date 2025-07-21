@@ -275,8 +275,8 @@ router.post("/sign-in", async (req, res) => {
     const conn = await dbConnection;
 
     const [rows] = await conn.query(
-      "SELECT * FROM Users WHERE email = ? AND enabled = TRUE AND role=?",
-      [email, "customer"]
+      "SELECT * FROM Users WHERE email = ? AND status =? AND role=?",
+      [email,"active", "customer"]
     );
 
     console.log(rows)

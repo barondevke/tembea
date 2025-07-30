@@ -113,7 +113,7 @@ function Sidebar({
   return (
     <div className="flex flex-col h-full bg-white border-r border-gray-200">
       <div className="p-6 border-b">
-        <h2 className="text-lg font-semibold">Tembea Admin</h2>
+        <h2 className="text-lg font-semibold">Tembezi Admin</h2>
         <p className="text-sm text-muted-foreground">{user.name}</p>
       </div>
       <nav className="flex-1 p-4 space-y-2">

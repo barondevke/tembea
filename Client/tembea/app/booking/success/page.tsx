@@ -26,7 +26,7 @@ export default function BookingSuccessPage() {
   
     const fetchBookingDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:4000/api/bookings/${bookingId}`);
+        const response = await fetch(`https://tembezi.co.ke/api/bookings/${bookingId}`);
         const data = await response.json();
   
         setBookingDetails({
@@ -73,7 +73,7 @@ export default function BookingSuccessPage() {
             <CheckCircle className="h-10 w-10 text-green-600" />
           </div>
           <h1 className="text-3xl font-bold mb-2">Booking Confirmed!</h1>
-          <p className="text-xl text-muted-foreground">Thank you for booking with Tembea. Your adventure awaits!</p>
+          <p className="text-xl text-muted-foreground">Thank you for booking with Tembezi. Your adventure awaits!</p>
         </div>
 
         <Card className="mb-8">
@@ -165,9 +165,9 @@ export default function BookingSuccessPage() {
           <p>
             If you have any questions or need to make changes to your booking, please contact our customer support team
             at
-            <a href="mailto:support@tembea.com" className="text-purple-600 hover:text-purple-800">
+            <a href="mailto:support@Tembezi.com" className="text-purple-600 hover:text-purple-800">
               {" "}
-              support@tembea.com
+              support@Tembezi.com
             </a>{" "}
             or call us at <span className="font-medium">+1 (234) 567-8900</span>.
           </p>

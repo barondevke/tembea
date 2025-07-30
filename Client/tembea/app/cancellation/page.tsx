@@ -112,7 +112,7 @@ export default function CancellationPolicyPage() {
             </p>
             <p className="mb-4">
               The cancellation date is determined based on the date we receive your written cancellation request. All
-              cancellation requests must be submitted in writing via email to cancellations@tembea.com or through your
+              cancellation requests must be submitted in writing via email to cancellations@Tembezi.com or through your
               account dashboard.
             </p>
           </section>
@@ -207,9 +207,9 @@ export default function CancellationPolicyPage() {
               </li>
             </ul>
             <p className="mb-4">
-              Please note that Tembea is not responsible for additional expenses incurred as a result of a tour operator
+              Please note that Tembezi is not responsible for additional expenses incurred as a result of a tour operator
               cancellation, such as non-refundable flights, accommodation, or other travel arrangements not booked
-              through Tembea. This is why we strongly recommend comprehensive travel insurance.
+              through Tembezi. This is why we strongly recommend comprehensive travel insurance.
             </p>
           </section>
 
@@ -258,8 +258,8 @@ export default function CancellationPolicyPage() {
               please contact us at:
             </p>
             <address className="not-italic mb-6">
-              <p>Tembea Customer Support</p>
-              <p>Email: cancellations@tembea.com</p>
+              <p>Tembezi Customer Support</p>
+              <p>Email: cancellations@Tembezi.com</p>
               <p>Phone: +1 (234) 567-8900</p>
               <p>Hours: Monday-Friday, 9:00 AM - 6:00 PM GMT+0</p>
             </address>

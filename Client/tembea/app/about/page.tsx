@@ -6,7 +6,7 @@ export default function AboutPage() {
     <div className="container py-12 space-y-16">
       {/* Hero Section */}
       <section className="text-center space-y-4">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">About Tembea</h1>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">About Tembezi</h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
           Discover the story behind the tourism advisor platform that's changing how people explore the world.
         </p>
@@ -24,7 +24,7 @@ export default function AboutPage() {
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Our Mission</h2>
           <p className="text-lg text-muted-foreground">
-            At Tembea, our mission is to connect travelers with authentic, unforgettable experiences around the world.
+            At Tembezi, our mission is to connect travelers with authentic, unforgettable experiences around the world.
             We believe that travel has the power to transform lives, broaden perspectives, and create lasting memories.
           </p>
           <p className="text-lg text-muted-foreground">
@@ -40,8 +40,8 @@ export default function AboutPage() {
         <div className="order-2 md:order-1 space-y-6">
           <h2 className="text-3xl font-bold">Our Story</h2>
           <p className="text-lg text-muted-foreground">
-            Tembea was founded in 2023 by a group of passionate travelers who were frustrated with the complexity and
-            lack of transparency in the travel industry. The name "Tembea" comes from Swahili, meaning "to walk" or "to
+            Tembezi was founded in 2025 by a group of passionate travelers who were frustrated with the complexity and
+            lack of transparency in the travel industry. The name "Tembezi" comes from the Swahili word Tembea, meaning "to walk" or "to
             travel," reflecting our focus on journey and exploration.
           </p>
           <p className="text-lg text-muted-foreground">
@@ -53,7 +53,7 @@ export default function AboutPage() {
         <div className="order-1 md:order-2">
           <img
             src="/placeholder.svg?height=400&width=600"
-            alt="Tembea founding team"
+            alt="Tembezi founding team"
             className="rounded-lg shadow-md"
           />
         </div>
@@ -64,7 +64,7 @@ export default function AboutPage() {
         <div className="text-center">
           <h2 className="text-3xl font-bold">Our Values</h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto mt-4">
-            These core principles guide everything we do at Tembea.
+            These core principles guide everything we do at Tembezi.
           </p>
         </div>
 
@@ -152,11 +152,11 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="space-y-8">
+     {/* <section className="space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold">Meet Our Team</h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto mt-4">
-            The passionate individuals behind Tembea who make your travel dreams come true.
+            The passionate individuals behind Tembezi who make your travel dreams come true.
           </p>
         </div>
 
@@ -202,12 +202,12 @@ export default function AboutPage() {
           ))}
         </div>
       </section>
-
+          */}
       {/* CTA Section */}
       <section className="bg-purple-50 rounded-xl p-8 md:p-12 text-center space-y-6">
         <h2 className="text-3xl font-bold">Ready to Start Your Journey?</h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Join thousands of travelers who have discovered amazing destinations with Tembea. Sign up today and start
+          Join thousands of travelers who have discovered amazing destinations with Tembezi. Sign up today and start
           planning your next adventure.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">

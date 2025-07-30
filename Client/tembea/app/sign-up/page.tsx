@@ -123,7 +123,7 @@ export default function SignUpPage() {
       toast({
         title: "Account created",
         description:
-          "Welcome to Tembea! Your account has been created successfully.",
+          "Welcome to Tembezi! Your account has been created successfully.",
       });
       router.push("/");
     } catch (error) {

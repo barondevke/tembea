@@ -95,7 +95,7 @@ const endpointSecret = "whsec_32ceab3cdb3dfb3177b4f2d5a2e1651d5adc9c664417453f18
   response.json({ received: true });
 });*/
 app.post(
-  "/paystack/webhook",
+  "/api/paystack/webhook",
   bodyParser.raw({ type: "application/json" }),
   async (req, res) => {
     const hash = crypto
@@ -309,5 +309,5 @@ app.get("/success", (req, res) => {
 
 
 app.listen(4000, () => {
-  console.log("Server running on http://localhost:4000");
+  console.log("Server running on https://tembezi.co.ke");
 });

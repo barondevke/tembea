@@ -13,7 +13,7 @@ export default function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-bold mb-4">Tembea</h3>
+            <h3 className="text-lg font-bold mb-4">Tembezi</h3>
             <p className="text-slate-400 mb-4">
               Your trusted tourism advisor for amazing travel experiences
               worldwide.
@@ -175,7 +175,7 @@ export default function Footer() {
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
-                contact@tembea.com
+                contact@Tembezi.com
               </li>
               <li className="flex items-start">
                 <svg
@@ -202,7 +202,7 @@ export default function Footer() {
       <div className="border-t border-slate-800 py-6">
         <div className="container">
           <p className="text-center text-slate-400">
-            © {new Date().getFullYear()} Tembea. All rights reserved.
+            © {new Date().getFullYear()} Tembezi. All rights reserved.
           </p>
         </div>
       </div>

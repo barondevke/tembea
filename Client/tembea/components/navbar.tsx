@@ -157,7 +157,7 @@ export default function Navbar() {
               <path d="M12 4C8 4 7 8 7 10" />
               <path d="M12 4c4 0 5 4 5 6" />
             </svg>
-            <span className="font-bold text-xl">Tembea</span>
+            <span className="font-bold text-xl">Tembezi</span>
           </Link>
         </div>
 

@@ -19,7 +19,7 @@ export default function ProductDetailPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    axios.get(`http://localhost:4000/api/tours/${id}`).then(res => {
+    axios.get(`https://tembezi.co.ke/api/tours/${id}`).then(res => {
       setProduct(res.data)
       setLoading(false)
     }).catch(() => setLoading(false))
@@ -52,7 +52,7 @@ export default function ProductDetailPage() {
 
   const handleSave = async () => {
     setSaving(true)
-    await axios.put(`http://localhost:4000/api/tours/${id}`, product)
+    await axios.put(`https://tembezi.co.ke/api/tours/${id}`, product)
     setSaving(false)
     router.push("/admin/products")
   }
@@ -62,7 +62,7 @@ export default function ProductDetailPage() {
     if (!confirmDelete) return;
   
     try {
-      await axios.delete(`http://localhost:4000/api/tours/${id}`);
+      await axios.delete(`https://tembezi.co.ke/api/tours/${id}`);
   
       // Update local state
      

@@ -106,11 +106,11 @@ export default function TermsPage() {
           <section id="introduction" className="scroll-mt-24">
             <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
             <p className="mb-4">
-              Welcome to Tembea. These Terms and Conditions govern your use of the Tembea website, mobile applications,
+              Welcome to Tembezi. These Terms and Conditions govern your use of the Tembezi website, mobile applications,
               and services (collectively, the "Services"). By accessing or using our Services, you agree to be and
               services (collectively, the "Services"). By accessing or using our Services, you agree to be bound by
               these Terms and Conditions. If you do not agree to these terms, please do not use our Services. These
-              Terms and Conditions constitute a legally binding agreement between you and Tembea. We reserve the right
+              Terms and Conditions constitute a legally binding agreement between you and Tembezi. We reserve the right
               to update or modify these terms at any time without prior notice. Your continued use of our Services
               following any changes indicates your acceptance of the revised terms.
             </p>
@@ -123,7 +123,7 @@ export default function TermsPage() {
             </p>
             <ul className="list-disc pl-6 space-y-2 mb-4">
               <li>
-                <strong>"Tembea"</strong> refers to our company, including our website, mobile applications, and
+                <strong>"Tembezi"</strong> refers to our company, including our website, mobile applications, and
                 services.
               </li>
               <li>
@@ -157,12 +157,12 @@ export default function TermsPage() {
             </p>
             <p className="mb-4">
               You agree to notify us immediately of any unauthorized use of your account or any other breach of
-              security. Tembea will not be liable for any loss or damage arising from your failure to protect your
+              security. Tembezi will not be liable for any loss or damage arising from your failure to protect your
               account credentials.
             </p>
             <p className="mb-4">
               We reserve the right to suspend or terminate your account at our discretion, without notice, if we believe
-              you have violated these Terms and Conditions or if your use of the Services poses a risk to Tembea or
+              you have violated these Terms and Conditions or if your use of the Services poses a risk to Tembezi or
               other users.
             </p>
           </section>
@@ -171,7 +171,7 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold mb-4">4. Booking & Payments</h2>
             <p className="mb-4">
               When you make a booking through our Services, you enter into a contract with the Tour Operator, not with
-              Tembea. We act as an intermediary between you and the Tour Operator. By making a booking, you agree to the
+              Tembezi. We act as an intermediary between you and the Tour Operator. By making a booking, you agree to the
               specific terms and conditions of the Tour Operator, in addition to these Terms and Conditions.
             </p>
             <p className="mb-4">
@@ -232,7 +232,7 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold mb-4">7. Intellectual Property</h2>
             <p className="mb-4">
               All content on our Services, including but not limited to text, graphics, logos, images, audio clips,
-              digital downloads, and software, is the property of Tembea or its content suppliers and is protected by
+              digital downloads, and software, is the property of Tembezi or its content suppliers and is protected by
               international copyright, trademark, and other intellectual property laws.
             </p>
             <p className="mb-4">
@@ -246,7 +246,7 @@ export default function TermsPage() {
           <section id="liability" className="scroll-mt-24">
             <h2 className="text-2xl font-bold mb-4">8. Limitation of Liability</h2>
             <p className="mb-4">
-              To the maximum extent permitted by law, Tembea shall not be liable for any indirect, incidental, special,
+              To the maximum extent permitted by law, Tembezi shall not be liable for any indirect, incidental, special,
               consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or
               other intangible losses, resulting from:
             </p>
@@ -265,7 +265,7 @@ export default function TermsPage() {
           <section id="indemnification" className="scroll-mt-24">
             <h2 className="text-2xl font-bold mb-4">9. Indemnification</h2>
             <p className="mb-4">
-              You agree to indemnify, defend, and hold harmless Tembea, its officers, directors, employees, agents, and
+              You agree to indemnify, defend, and hold harmless Tembezi, its officers, directors, employees, agents, and
               affiliates from and against any and all claims, liabilities, damages, losses, costs, expenses, or fees
               (including reasonable attorneys' fees) arising from:
             </p>
@@ -299,11 +299,11 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold mb-4">12. Contact Information</h2>
             <p className="mb-4">If you have any questions about these Terms and Conditions, please contact us at:</p>
             <address className="not-italic mb-6">
-              <p>Tembea</p>
+              <p>Tembezi</p>
               <p>1234 Tourism Road</p>
               <p>Travel City, TC 56789</p>
               <p>United States</p>
-              <p>Email: legal@tembea.com</p>
+              <p>Email: legal@Tembezi.com</p>
               <p>Phone: +1 (234) 567-8900</p>
             </address>
           </section>

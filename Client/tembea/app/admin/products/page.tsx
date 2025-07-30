@@ -180,7 +180,7 @@ const handleRemoveImage = (index: number) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://localhost:4000/api/tours"); // assuming /api/tours is your endpoint
+        const response = await fetch("https://tembezi.co.ke/api/tours"); // assuming /api/tours is your endpoint
         const data = await response.json();
         setProducts(data);
       } catch (error) {
@@ -193,7 +193,7 @@ const handleRemoveImage = (index: number) => {
 
   useEffect(() => {
     if (isAddDialogOpen) {
-      axios.get("http://localhost:4000/api/sellers") // adjust endpoint if different
+      axios.get("https://tembezi.co.ke/api/sellers") // adjust endpoint if different
         .then((res) => setSellers(res.data))
         .catch((err) => console.error("Error fetching sellers:", err));
     }
@@ -225,7 +225,7 @@ const handleRemoveImage = (index: number) => {
         const formData = new FormData();
         formData.append("image", file);
   
-        const res = await fetch("http://localhost:4000/api/upload-image", {
+        const res = await fetch("https://tembezi.co.ke/api/upload-image", {
           method: "POST",
           body: formData,
         });
@@ -242,7 +242,7 @@ const handleRemoveImage = (index: number) => {
         images: uploadedUrls,
       };
   
-      await axios.post("http://localhost:4000/api/tours", finalProduct);
+      await axios.post("https://tembezi.co.ke/api/tours", finalProduct);
   
       toast({
         title: "Product Added",

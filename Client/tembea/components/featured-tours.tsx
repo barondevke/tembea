@@ -30,7 +30,7 @@ export default function FeaturedTours() {
   useEffect(() => {
     const fetchTours = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/tours/summary")
+        const res = await fetch("https://tembezi.co.ke/api/tours/summary")
         if (!res.ok) {
           throw new Error("Failed to fetch tours")
         }

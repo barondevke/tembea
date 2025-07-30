@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check if user is stored in localStorage
     try {
-      const storedUser = localStorage.getItem("tembea-user")
+      const storedUser = localStorage.getItem("Tembezi-user")
       if (storedUser) {
         setUser(JSON.parse(storedUser))
       }
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setUser(mockUser)
     try {
-      localStorage.setItem("tembea-user", JSON.stringify(mockUser))
+      localStorage.setItem("Tembezi-user", JSON.stringify(mockUser))
     } catch (error) {
       console.error("Error setting localStorage:", error)
     }
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = () => {
     setUser(null)
     try {
-      localStorage.removeItem("tembea-user")
+      localStorage.removeItem("Tembezi-user")
     } catch (error) {
       console.error("Error removing from localStorage:", error)
     }

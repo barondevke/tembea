@@ -9,9 +9,9 @@ export default function FAQPage() {
       category: "Booking & Reservations",
       questions: [
         {
-          question: "How do I book a tour on Tembea?",
+          question: "How do I book a tour on Tembezi?",
           answer:
-            "Booking a tour on Tembea is simple. Browse our available tours, select the one you're interested in, choose your preferred date and number of travelers, and click 'Book Now'. Follow the checkout process to complete your booking. You'll receive a confirmation email with all the details of your tour.",
+            "Booking a tour on Tembezi is simple. Browse our available tours, select the one you're interested in, choose your preferred date and number of travelers, and click 'Book Now'. Follow the checkout process to complete your booking. You'll receive a confirmation email with all the details of your tour.",
         },
         {
           question: "Can I book a tour for someone else?",
@@ -51,7 +51,7 @@ export default function FAQPage() {
         {
           question: "What currency are the prices listed in?",
           answer:
-            "All prices on Tembea are listed in US Dollars (USD). If you're paying with a different currency, your bank or credit card provider will convert the amount at their current exchange rate.",
+            "All prices on Tembezi are listed in US Dollars (USD). If you're paying with a different currency, your bank or credit card provider will convert the amount at their current exchange rate.",
         },
       ],
     },
@@ -76,7 +76,7 @@ export default function FAQPage() {
         {
           question: "Do I need travel insurance?",
           answer:
-            "Yes, comprehensive travel insurance is mandatory for all Tembea tours. Your policy should cover medical expenses, emergency evacuation, trip cancellation, and loss or theft of personal belongings. We recommend purchasing insurance as soon as you book your tour.",
+            "Yes, comprehensive travel insurance is mandatory for all Tembezi tours. Your policy should cover medical expenses, emergency evacuation, trip cancellation, and loss or theft of personal belongings. We recommend purchasing insurance as soon as you book your tour.",
         },
       ],
     },
@@ -94,14 +94,14 @@ export default function FAQPage() {
             "Yes, you can request to change your booking dates, subject to availability. Changes requested 60 days or more before departure typically incur no fee. Changes requested 30-59 days before departure may incur a change fee. Changes less than 30 days before departure are treated as a cancellation and rebooking, subject to our cancellation policy.",
         },
         {
-          question: "What happens if Tembea cancels my tour?",
+          question: "What happens if Tembezi cancels my tour?",
           answer:
             "In the rare event that we need to cancel a tour (due to unforeseen circumstances, safety concerns, or insufficient participants), you'll be offered either a full refund, credit toward a future tour, or an alternative tour of similar value. We'll also assist with reasonable flight change fees if applicable.",
         },
         {
           question: "Is my booking protected if the tour operator goes out of business?",
           answer:
-            "Yes, Tembea has financial protection measures in place to safeguard customer payments. In the unlikely event that a tour operator cannot fulfill their obligations, we'll either arrange an alternative tour or provide a full refund.",
+            "Yes, Tembezi has financial protection measures in place to safeguard customer payments. In the unlikely event that a tour operator cannot fulfill their obligations, we'll either arrange an alternative tour or provide a full refund.",
         },
       ],
     },
@@ -111,7 +111,7 @@ export default function FAQPage() {
         {
           question: "Do I need to create an account to book a tour?",
           answer:
-            "Yes, you need to create a Tembea account to book a tour. This allows you to manage your bookings, save favorite tours, and access special offers. Creating an account is free and only takes a minute.",
+            "Yes, you need to create a Tembezi account to book a tour. This allows you to manage your bookings, save favorite tours, and access special offers. Creating an account is free and only takes a minute.",
         },
         {
           question: "How do I reset my password?",
@@ -119,14 +119,14 @@ export default function FAQPage() {
             "To reset your password, click on the 'Sign In' button, then select 'Forgot password?' Enter your email address, and we'll send you a link to reset your password. If you don't receive the email, check your spam folder or contact our support team.",
         },
         {
-          question: "Can I use Tembea on my mobile device?",
+          question: "Can I use Tembezi on my mobile device?",
           answer:
-            "Yes, Tembea is fully responsive and works on all devices, including smartphones and tablets. You can browse tours, make bookings, and manage your account from any device with an internet connection.",
+            "Yes, Tembezi is fully responsive and works on all devices, including smartphones and tablets. You can browse tours, make bookings, and manage your account from any device with an internet connection.",
         },
         {
           question: "How do I contact customer support?",
           answer:
-            "You can contact our customer support team through the 'Contact' page on our website, by emailing support@tembea.com, or by calling +1 (234) 567-8900 during our business hours (Monday-Friday, 9:00 AM - 6:00 PM GMT+0).",
+            "You can contact our customer support team through the 'Contact' page on our website, by emailing support@Tembezi.com, or by calling +1 (234) 567-8900 during our business hours (Monday-Friday, 9:00 AM - 6:00 PM GMT+0).",
         },
       ],
     },

@@ -51,7 +51,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
 
   const getTour = async (id: number ): Promise<void> => {
     try {
-      const res = await fetch(`http://localhost:4000/api/tours/${id}`)
+      const res = await fetch(`https://tembezi.co.ke/api/tours/${id}`)
       if (!res.ok) {
         const error = await res.json()
         throw new Error(error?.error || "Failed to fetch tour data")
@@ -140,7 +140,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
   
     try {
       
-      const bookingResponse = await axios.post("http://localhost:4000/api/bookings/create", {
+      const bookingResponse = await axios.post("https://tembezi.co.ke/api/bookings/create", {
         user_id: user.id,
         product_id: tour.id,
         start_date: selectedDate,
@@ -153,7 +153,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
       const bookingId = bookingResponse.data.booking_id;
   
       // 2. Create Stripe checkout session
-      const paymentResponse = await axios.post("http://localhost:4000/api/initiate-payment", {
+      const paymentResponse = await axios.post("https://tembezi.co.ke/api/initiate-payment", {
       email: user.email,
       amount: calculateTotalPrice(tour.price, selectedTravelers), // in USD or base units
       subaccount: tour.subaccount_code, // 🛑 Make sure this exists in your tour object
@@ -197,7 +197,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
     setIsAddingToWishlist(true);
   
     try {
-      const response = await axios.post("http://localhost:4000/api/wishlist/add", {
+      const response = await axios.post("https://tembezi.co.ke/api/wishlist/add", {
         user_id: user.id,         // Make sure 'user.id' is correct
         product_id: tour.id,       // Assuming 'tour.id' is the current tour
       });
@@ -265,7 +265,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
   const handleBuyNow = async () => {
     ;
     try {
-      const response = await fetch("http://localhost:4000/create-checkout-session", {
+      const response = await fetch("https://tembezi.co.ke/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });

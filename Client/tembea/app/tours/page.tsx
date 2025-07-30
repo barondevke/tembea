@@ -75,7 +75,7 @@ export default function ToursPage() {
         if (minRating > 0) params.set("rating", minRating.toString())
         if (sortOption !== "recommended") params.set("sort", sortOption)
 
-        const res = await fetch(`http://localhost:4000/api/tours/filter?${params.toString()}`)
+        const res = await fetch(`https://tembezi.co.ke/api/tours/filter?${params.toString()}`)
         if (!res.ok) throw new Error("Failed to fetch tours")
 
         const data = await res.json()

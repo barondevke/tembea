@@ -71,7 +71,7 @@ export default function SignInPage() {
       await defaultSignIn();
       toast({
         title: "Sign in successful",
-        description: "Welcome back to Tembea!",
+        description: "Welcome back to Tembezi!",
       });
       router.push("/");
     } catch (error) {
@@ -92,7 +92,7 @@ export default function SignInPage() {
       await signIn();
       toast({
         title: "Sign in successful",
-        description: "Welcome back to Tembea!",
+        description: "Welcome back to Tembezi!",
       });
       router.push("/");
     } catch (error) {
@@ -112,7 +112,7 @@ export default function SignInPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold">Welcome back</h1>
           <p className="mt-2 text-muted-foreground">
-            Sign in to your Tembea account
+            Sign in to your Tembezi account
           </p>
         </div>
 

@@ -101,7 +101,7 @@ export default function PrivacyPolicyPage() {
           <section id="introduction" className="scroll-mt-24">
             <h2 className="text-2xl font-bold mb-4">1. Introduction</h2>
             <p className="mb-4">
-              At Tembea, we are committed to protecting your privacy and ensuring the security of your personal
+              At Tembezi, we are committed to protecting your privacy and ensuring the security of your personal
               information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information
               when you visit our website, use our mobile application, or use any of our services (collectively, the
               "Services").
@@ -202,7 +202,7 @@ export default function PrivacyPolicyPage() {
 
             <h3 className="text-xl font-semibold mt-6 mb-3">4.3 Business Transfers</h3>
             <p className="mb-4">
-              If Tembea is involved in a merger, acquisition, or sale of all or a portion of its assets, your
+              If Tembezi is involved in a merger, acquisition, or sale of all or a portion of its assets, your
               information may be transferred as part of that transaction. We will notify you via email and/or a
               prominent notice on our website of any change in ownership or uses of your personal information.
             </p>
@@ -338,11 +338,11 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-2xl font-bold mb-4">11. Contact Us</h2>
             <p className="mb-4">If you have any questions about this Privacy Policy, please contact us at:</p>
             <address className="not-italic mb-6">
-              <p>Tembea</p>
+              <p>Tembezi</p>
               <p>1234 Tourism Road</p>
               <p>Travel City, TC 56789</p>
               <p>United States</p>
-              <p>Email: privacy@tembea.com</p>
+              <p>Email: privacy@Tembezi.com</p>
               <p>Phone: +1 (234) 567-8900</p>
             </address>
           </section>

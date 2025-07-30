@@ -176,8 +176,8 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-semibold text-lg">Email</h3>
                   <p className="text-muted-foreground">
-                    <a href="mailto:contact@tembea.com" className="hover:text-purple-600">
-                      contact@tembea.com
+                    <a href="mailto:contact@Tembezi.com" className="hover:text-purple-600">
+                      contact@Tembezi.com
                     </a>
                   </p>
                   <p className="text-sm text-muted-foreground">For general inquiries and support</p>

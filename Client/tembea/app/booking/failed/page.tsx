@@ -82,9 +82,9 @@ export default function BookingFailedPage() {
           <h3 className="font-semibold mb-2">Need Help?</h3>
           <p className="mb-4">
             Our customer support team is available to assist you with your booking. Please contact us at
-            <a href="mailto:support@tembea.com" className="text-purple-600 hover:text-purple-800">
+            <a href="mailto:support@Tembezi.com" className="text-purple-600 hover:text-purple-800">
               {" "}
-              support@tembea.com
+              support@Tembezi.com
             </a>{" "}
             or call us at <span className="font-medium">+1 (234) 567-8900</span>.
           </p>

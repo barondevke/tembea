@@ -47,10 +47,10 @@ router.post("/verify", async (req, res) => {
     const verificationID = randomNumber();
 
     const mailOptions = {
-      from: '"Tembea" <tom.ndemo.adinfinite@gmail.com>',
+      from: '"Tembezi" <tom.ndemo.adinfinite@gmail.com>',
       to: email,
       subject: "Your verification code",
-      text: `Your OTP for Tembea sign up is ${code}. Best Regards, Tembea`,
+      text: `Your OTP for Tembezi sign up is ${code}. Best Regards, Tembezi`,
     };
 
     transporter.sendMail(mailOptions, async (error, info) => {

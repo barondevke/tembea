@@ -19,7 +19,7 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
 
 useEffect(() => {
-  axios.get("http://localhost:4000/api/transactions")
+  axios.get("https://tembezi.co.ke/api/transactions")
     .then(res => setTransactions(res.data))
     .catch(err => console.error("Failed to load transactions:", err));
 }, []);

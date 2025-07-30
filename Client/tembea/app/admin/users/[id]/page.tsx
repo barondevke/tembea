@@ -12,7 +12,7 @@ export default function UserDetailPage() {
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    axios.get(`http://localhost:4000/api/user/admin/users/${id}`).then(res => {
+    axios.get(`https://tembezi.co.ke/api/user/admin/users/${id}`).then(res => {
       setUser(res.data)
     })
   }, [id])

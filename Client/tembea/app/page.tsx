@@ -105,9 +105,9 @@ export default function Home() {
 
       <section className="container py-12">
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <h2 className="text-3xl font-bold tracking-tight">Why Choose Tembea?</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Why Choose Tembezi?</h2>
           <p className="text-muted-foreground">
-            At Tembea, we're passionate about creating unforgettable travel experiences. Our team of travel experts
+            At Tembezi, we're passionate about creating unforgettable travel experiences. Our team of travel experts
             carefully curates each tour package to ensure quality, authenticity, and value for money.
           </p>
         </div>

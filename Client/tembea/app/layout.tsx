@@ -15,9 +15,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tembea - Discover Amazing Tour Packages",
+  title: "Tembezi - Discover Amazing Tour Packages",
   description:
-    "Find and book your next adventure with Tembea, your trusted tourism advisor.",
+    "Find and book your next adventure with Tembezi, your trusted tourism advisor.",
 };
 
 export default function RootLayout({

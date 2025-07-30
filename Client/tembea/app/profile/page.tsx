@@ -35,12 +35,12 @@ export default function ProfilePage() {
       if (!user) return;
   
       try {
-        const response = await axios.get(`http://localhost:4000/api/wishlist/user/${user.id}`);
+        const response = await axios.get(`https://tembezi.co.ke/api/wishlist/user/${user.id}`);
         const productIds = response.data.wishlist.map((item: any) => item.product_id);
   
         const productDetails = await Promise.all(
           productIds.map(async (productId: number) => {
-            const productResponse = await axios.get(`http://localhost:4000/api/tours/${productId}`);
+            const productResponse = await axios.get(`https://tembezi.co.ke/api/tours/${productId}`);
             return productResponse.data;
           })
         );
@@ -62,14 +62,14 @@ export default function ProfilePage() {
   
       try {
         // Step 1: Fetch list of product_ids from bookings
-        const response = await axios.get(`http://localhost:4000/api/bookings/user/${user.id}`);
+        const response = await axios.get(`https://tembezi.co.ke/api/bookings/user/${user.id}`);
 
         const bookingIds = response.data.bookings.map((item: any) => item.id);
         console.log(bookingIds)
         // Step 2: Fetch full product details
         const enrichedBookings = await Promise.all(
           bookingIds.map(async (booking: any) => {
-            const bookingResponse = await axios.get(`http://localhost:4000/api/bookings/${booking}`);
+            const bookingResponse = await axios.get(`https://tembezi.co.ke/api/bookings/${booking}`);
             return bookingResponse.data; // This contains the booking info along with tour details
           })
         );
@@ -93,7 +93,7 @@ export default function ProfilePage() {
 
   const removeFromWishlist = async (userId: number, productId: number) => {
     try {
-      const response = await axios.delete("http://localhost:4000/api/wishlist/remove", {
+      const response = await axios.delete("https://tembezi.co.ke/api/wishlist/remove", {
         data: {
           user_id: userId,
           product_id: productId

@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
     };
 
     const response = await api.post(
-      "http://localhost:4000/api/user/admin/sign-in",
+      "https://tembezi.co.ke/api/user/admin/sign-in",
       payload
     );
     const res = response.data;
@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
       await defaultSignIn();
       toast({
         title: "Sign in successful",
-        description: "Welcome back to Tembea!",
+        description: "Welcome back to Tembezi!",
       });
       router.push("/admin/");
     } catch (error) {
@@ -93,7 +93,7 @@ export default function AdminLoginPage() {
       await signIn();
       toast({
         title: "Sign in successful",
-        description: "Welcome back to Tembea!",
+        description: "Welcome back to Tembezi!",
       });
       router.push("/");
     } catch (error) {
@@ -113,7 +113,7 @@ export default function AdminLoginPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold">Welcome back</h1>
           <p className="mt-2 text-muted-foreground">
-            Sign in to your Tembea account
+            Sign in to your Tembezi account
           </p>
         </div>
 

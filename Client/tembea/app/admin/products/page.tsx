@@ -56,13 +56,69 @@ const mockProducts = [
   },
 ]
 
+type TourProduct = {
+  status: string
+  id?: number;
+  title: string;
+  location: string;
+  duration: string;
+  price: string;
+  discount_price: string;
+  discount: string;
+  rating: string;
+  description: string;
+  featured: boolean;
+  continent: string;
+  category: string;
+  images: string[]; // image URLs
+  highlights: string[];
+  included: string[];
+  notIncluded: string[];
+  itinerary: {
+    day: string;
+    title: string;
+    description: string;
+  }[];
+  seller_id: number | null;
+};
+
+type Seller = {
+  id:number;
+  name:string;
+
+
+}
+
+type TourProductKey = keyof TourProduct;
+
+type InputField = {
+  id: TourProductKey;
+  label: string;
+  placeholder?: string;
+  type?: string;
+};
+type FieldId = keyof TourProduct;
+
+
 export default function ProductsPage() {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState<TourProduct[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [sellers, setSellers] = useState([]) // list of all sellers
+  const [sellers, setSellers] = useState<Seller[]>([]) // list of all sellers
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
-  const [newProduct, setNewProduct] = useState({
+  const fields: { id: FieldId; label: string; placeholder?: string; type?: string }[] = [
+    { id: "title", label: "Title *", placeholder: "Tour package title" },
+    { id: "location", label: "Location *", placeholder: "Destination" },
+    { id: "duration", label: "Duration", placeholder: "e.g. 7 days" },
+    { id: "price", label: "Price *", placeholder: "USD", type: "number" },
+    { id: "discount_price", label: "Discount Price", type: "number" },
+    { id: "discount", label: "Discount (%)", type: "number" },
+    { id: "rating", label: "Rating", type: "number", placeholder: "e.g. 4.5" },
+    { id: "continent", label: "Continent", placeholder: "e.g. Africa" },
+    { id: "category", label: "Category", placeholder: "e.g. Adventure" },
+  ];
+  
+  const [newProduct, setNewProduct] = useState<TourProduct>({
     title: "",
     location: "",
     duration: "",
@@ -78,8 +134,14 @@ export default function ProductsPage() {
     highlights: [],       // ["highlight 1", "highlight 2"]
     included: [],         // ["Flight", "Hotel"]
     notIncluded: [],      // ["Visa", "Tips"]
-    itinerary: [],
-    seller_id:null         // [{ day: 1, title: "Arrival", description: "Land and transfer" }]
+    itinerary: [
+      {
+        day: "",
+        title: "",
+        description: ""
+  }],
+    seller_id:null,
+    status:""        // [{ day: 1, title: "Arrival", description: "Land and transfer" }]
   });
 
   const [imageInput, setImageInput] = useState("");
@@ -206,7 +268,8 @@ const handleRemoveImage = (index: number) => {
         included: [],
         notIncluded: [],
         itinerary: [],
-        seller_id: null,
+        seller_id:null,
+        status:""
       });
       setSelectedFiles([]);
       setImagePreviews([]);
@@ -260,7 +323,7 @@ const handleRemoveImage = (index: number) => {
   <select
     id="seller_id"
     value={newProduct.seller_id || ""}
-    onChange={(e) => setNewProduct({ ...newProduct, seller_id: parseInt(e.target.value) })}
+    onChange={(e) => setNewProduct({ ...newProduct,seller_id: e.target.value ? parseInt(e.target.value) : null})}
     className="border rounded px-3 py-2"
   >
     <option value="">-- Select Seller --</option>
@@ -272,28 +335,21 @@ const handleRemoveImage = (index: number) => {
   </select>
 </div>
 
-      {[
-        { id: "title", label: "Title *", placeholder: "Tour package title" },
-        { id: "location", label: "Location *", placeholder: "Destination" },
-        { id: "duration", label: "Duration", placeholder: "e.g. 7 days" },
-        { id: "price", label: "Price *", placeholder: "USD", type: "number" },
-        { id: "discount_price", label: "Discount Price", type: "number" },
-        { id: "discount", label: "Discount (%)", type: "number" },
-        { id: "rating", label: "Rating", type: "number", placeholder: "e.g. 4.5" },
-        { id: "continent", label: "Continent", placeholder: "e.g. Africa" },
-        { id: "category", label: "Category", placeholder: "e.g. Adventure" },
-      ].map((field) => (
-        <div className="grid gap-2" key={field.id}>
-          <Label htmlFor={field.id}>{field.label}</Label>
-          <Input
-            id={field.id}
-            type={field.type || "text"}
-            value={newProduct[field.id]}
-            onChange={(e) => setNewProduct({ ...newProduct, [field.id]: e.target.value })}
-            placeholder={field.placeholder}
-          />
-        </div>
-      ))}
+{fields.map((field) => (
+  <Input
+  id={field.id}
+  type={field.type || "text"}
+  value={String(newProduct[field.id] ?? "")}
+  onChange={(e) =>
+    setNewProduct({
+      ...newProduct,
+      [field.id]: field.type === "number" ? Number(e.target.value) : e.target.value,
+    })
+  }
+  placeholder={field.placeholder}
+/>
+))}
+
 
       <div className="grid gap-2">
         <Label htmlFor="description">Description</Label>
@@ -362,15 +418,15 @@ const handleRemoveImage = (index: number) => {
           <div className="flex gap-2">
             <Input
               placeholder={`Enter ${section.label.toLowerCase()}`}
-              value={dynamicInputs[section.key]}
+              value={dynamicInputs[section.key as keyof typeof dynamicInputs]}
               onChange={(e) => setDynamicInputs({ ...dynamicInputs, [section.key]: e.target.value })}
             />
             <Button
               onClick={() => {
-                if (dynamicInputs[section.key]) {
+                if (dynamicInputs[section.key as keyof typeof dynamicInputs]) {
                   setNewProduct({
                     ...newProduct,
-                    [section.key]: [...newProduct[section.key], dynamicInputs[section.key]],
+                    [section.key]: [...newProduct[section.key as keyof typeof dynamicInputs], dynamicInputs[section.key as keyof typeof dynamicInputs]],
                   });
                   setDynamicInputs({ ...dynamicInputs, [section.key]: "" });
                 }
@@ -380,7 +436,7 @@ const handleRemoveImage = (index: number) => {
             </Button>
           </div>
           <ul className="text-sm text-muted-foreground list-disc ml-5">
-            {newProduct[section.key].map((item, i) => (
+            {newProduct[section.key as keyof typeof dynamicInputs].map((item, i) => (
               <li key={i}>{item}</li>
             ))}
           </ul>
@@ -473,7 +529,6 @@ const handleRemoveImage = (index: number) => {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-2xl font-bold">${product.price}</p>
-                    <p className="text-sm text-muted-foreground">{product.bookings} bookings</p>
                   </div>
                 </div>
                 <div className="flex space-x-2">

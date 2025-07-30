@@ -67,17 +67,14 @@ export default function ProductDetailPage() {
       // Update local state
      
   
-      toast({
-        title: "Product Deleted",
-        description: "Product has been successfully deleted.",
-      });
+      alert("Product Deleted:\nProduct has been successfully deleted.");
+
       router.push("/admin/products")
     } catch (err: any) {
-      toast({
-        title: "Deletion Failed",
-        description: err.response?.data?.error || "Something went wrong while deleting the product.",
-        variant: "destructive",
-      });
+      alert(
+        "Deletion Failed:\n" + (err.response?.data?.error || "Something went wrong while deleting the product.")
+      );
+      
     }
   };
   

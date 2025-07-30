@@ -86,10 +86,7 @@ useEffect(() => {
           <h1 className="text-3xl font-bold">Transactions</h1>
           <p className="text-muted-foreground">Monitor all financial transactions and payments</p>
         </div>
-        <button variant="outline" className="flex items-center">
-          <Download className="mr-2 h-4 w-4" />
-          Export
-        </button>
+        
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

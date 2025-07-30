@@ -58,11 +58,25 @@ const mockBookings = [
   },
 ]
 
+type Booking = {
+  bookingId: string;
+  tourName: string;
+  customerName: string;
+  customerEmail: string;
+  startDate: string;      // ISO date format
+  endDate: string;
+  travelers: number;
+  totalAmount: number;
+  status: 'pending' | 'confirmed' | 'cancelled'; // if these are your possible values
+  bookingDate: string;
+};
+
+
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState([])
+  const [bookings, setBookings] = useState<Booking[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedBooking, setSelectedBooking] = useState<(typeof mockBookings)[0] | null>(null)
-  
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
   useEffect(() => {
     axios.get("http://localhost:4000/api/bookings")
       .then(res => setBookings(res.data))
@@ -178,7 +192,7 @@ export default function BookingsPage() {
                       <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
                           <DialogTitle>Booking Details</DialogTitle>
-                          <DialogDescription>Complete information for booking {selectedBooking?.id}</DialogDescription>
+                          <DialogDescription>Complete information for booking {selectedBooking?.bookingId}</DialogDescription>
                         </DialogHeader>
                         {selectedBooking && (
                           <div className="grid gap-4 py-4">

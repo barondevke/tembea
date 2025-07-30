@@ -275,7 +275,7 @@ router.post("/sign-in", async (req, res) => {
     const conn = await dbConnection;
 
     const [rows] = await conn.query(
-      "SELECT * FROM Users WHERE email = ? AND status =? AND role=?",
+      "SELECT * FROM users WHERE email = ? AND status =? AND role=?",
       [email,"active", "customer"]
     );
 
@@ -404,7 +404,7 @@ router.get("/get-user/:id", requireLogin, async (req, res) => {
 
   try {
     const conn = await dbConnection;
-    const [rows] = await conn.query("SELECT * FROM Users WHERE id = ?", [userId]);
+    const [rows] = await conn.query("SELECT * FROM users WHERE id = ?", [userId]);
 
     if (rows.length === 0) {
       return res.send({ message: `USER NOT FOUND`, proceed: false });

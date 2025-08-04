@@ -43,6 +43,7 @@ router.get("/summary", async (req, res) => {
             LIMIT 1
           ) AS image
         FROM products p
+        WHERE p.status = 'active'
       `);
   
       const formatted = tours.map(tour => ({
@@ -104,6 +105,7 @@ router.get("/tours-page", async (req, res) => {
             LIMIT 1
           ) AS image
         FROM products p
+        WHERE p.status = 'active'
         LIMIT ? OFFSET ?
       `, [limit, offset]);
   

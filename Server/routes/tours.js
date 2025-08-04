@@ -53,6 +53,7 @@ router.get("/summary", async (req, res) => {
         price: tour.price,
         rating: tour.rating,
         reviews: tour.reviews,
+        status:tour.status,
         image: tour.image || "/placeholder.jpg",
         ...(tour.discount && { discount: tour.discount }),
         ...(tour.featured && { featured: true })

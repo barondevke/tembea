@@ -19,7 +19,7 @@ function ReduxProvider({ children }: ChildrenType) {
         const userId = cookie.get("user_id");
         if (userId) {
           const response = await api.get(
-            `api/user/get-user/${userId}`,
+            `https://tembezi.co.ke/api/user/get-user/${userId}`,
           );
           const res = response.data;
           if (res.proceed) {

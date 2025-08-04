@@ -480,7 +480,6 @@ const resetFilters = () => {
                           <span className="text-muted-foreground text-sm">({tour.reviews} reviews)</span>
                         </div>
                         <div className="flex items-center justify-between">
-                        {console.log("Currency:", tour.currency)}
                         <div>
   <span className="text-2xl font-bold">
     {tour.currency === "KES" ? "Ksh" : "$"}

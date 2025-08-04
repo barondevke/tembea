@@ -25,7 +25,8 @@ let redisStore = new RedisStore({
 
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://localhost:3000"],
+    origin: ["http://localhost:3001", "http://localhost:3000","https://tembezi.co.ke",         // ✅ your live frontend
+    "https://www.tembezi.co.ke"],
     credentials: true,
   })
 );

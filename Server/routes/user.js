@@ -11,7 +11,7 @@ require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
   host: "smtp.zoho.com",        // Zoho SMTP server
-  port: 25,                    // Secure SSL port (use 587 for TLS)
+  port: 587,                    // Secure SSL port (use 587 for TLS)
   secure: false,                 // true for port 465, false for 587
   auth: {
     user: "admin@tembezi.co.ke",  // your Zoho email address

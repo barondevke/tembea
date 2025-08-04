@@ -396,18 +396,27 @@ router.post("/sign-out", async (req, res) => {
 router.get("/get-user/:id", requireLogin, async (req, res) => {
   let userId = req.params.id;
 
-  // 👇 Allow /get-user/0 to mean "me"
-  if (parseInt(userId) === 0 && req.session.user) {
-    userId = req.session.user.id;
+  // If /get-user/0 or invalid ID, use session user ID
+  const sessionUserId = req.session.user?.id;
+  const requestedUserId = parseInt(userId);
+
+  if (!sessionUserId) {
+    return res.status(401).send({ message: "NOT AUTHENTICATED" });
   }
 
-  if (parseInt(userId) !== req.session.user.id) {
+  // Use session user if 0 or NaN
+  const targetId = requestedUserId === 0 || isNaN(requestedUserId)
+    ? sessionUserId
+    : requestedUserId;
+
+  // Block access to other users' data
+  if (targetId !== sessionUserId) {
     return res.status(403).send({ message: "FORBIDDEN: NOT YOUR PROFILE" });
   }
 
   try {
     const conn = await dbConnection;
-    const [rows] = await conn.query("SELECT * FROM users WHERE id = ?", [userId]);
+    const [rows] = await conn.query("SELECT * FROM users WHERE id = ?", [targetId]);
 
     if (rows.length === 0) {
       return res.send({ message: `USER NOT FOUND`, proceed: false });
@@ -430,9 +439,10 @@ router.get("/get-user/:id", requireLogin, async (req, res) => {
     });
   } catch (error) {
     console.error("Get user error:", error.message);
-    return res.send("ERROR GETTING USER");
+    return res.status(500).send("ERROR GETTING USER");
   }
 });
+
 
 router.get("/admin/users", async (req, res) => {
   try {

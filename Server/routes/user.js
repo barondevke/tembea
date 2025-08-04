@@ -143,7 +143,7 @@ router.post("/create-user", async (req, res) => {
     const [result] = await conn.query(
       `INSERT INTO users (name, email, password, date_created, profile_image)
        VALUES (?, ?, ?, ?,?)`,
-      [data.name, data.email, password, 1, new Date(), null]
+      [data.name, data.email, password, new Date(), null]
     );
 
     const userId = result.insertId;

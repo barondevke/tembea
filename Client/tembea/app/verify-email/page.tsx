@@ -122,12 +122,11 @@ export default function VerifyEmailPage() {
     try {
       // In a real application, you would make an API call to verify the code
       // For this demo, we'll simulate a verification process
-      console.log(verification);
-      const res = await api.get(
-        `api/user/verify-code/${verification.id}/${parseInt(code)}`
+        const res = await api.get(
+        `https://tembezi.co.ke/api/user/verify-code/${verification.id}/${parseInt(code)}`
       );
 
-      console.log(res.data);
+      
       // For demo purposes, let's consider "123456" as the valid code
       if (res.data.proceed) {
         setSuccess(true);
@@ -137,7 +136,7 @@ export default function VerifyEmailPage() {
         });
 
         const createUserRes = await api.post(
-          `/api/user/create-user`,
+          `https://tembezi.co.ke//api/user/create-user`,
           {
             verification,
           },

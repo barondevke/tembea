@@ -43,7 +43,8 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
     discount_price:null,
     notIncluded: [],
     itinerary: [],
-    subaccount_code:null
+    subaccount_code:null,
+    currency:null
   };
   const [tour, setTour] = useState<Tour>(tourDefault);
 
@@ -156,7 +157,8 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
       const paymentResponse = await axios.post("https://tembezi.co.ke/api/initiate-payment", {
       email: user.email,
       amount: calculateTotalPrice(tour.price, selectedTravelers), // in USD or base units
-      subaccount: tour.subaccount_code, // 🛑 Make sure this exists in your tour object
+      subaccount: tour.subaccount_code,
+      currency:tour.currency, // 🛑 Make sure this exists in your tour object
       user_id: user.id,
       booking_id: bookingId,
     });
@@ -523,8 +525,10 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
                 {tour.discount ? (
                   <>
                     <span className="text-3xl font-bold">${tour.discount_price}</span>
-                    <span className="ml-2 line-through text-muted-foreground">${tour.price}</span>
-                    <Badge className="ml-2 bg-red-500">{tour.discount}% OFF</Badge>
+                    <span className="text-2xl font-bold">
+  {tour.currency === "KES" ? "Ksh" : tour.currency === "USD" ? "$" : ""}
+  {tour.price}
+</span> <Badge className="ml-2 bg-red-500">{tour.discount}% OFF</Badge>
                   </>
                 ) : (
                   <span className="text-3xl font-bold">${tour.price}</span>

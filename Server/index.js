@@ -211,21 +211,24 @@ app.use("/api/upload-image",uploadImage)
 });*/
 
 app.post("/api/initiate-payment", async (req, res) => {
-  const { email, amount, subaccount, user_id, booking_id } = req.body;
+  const { email, amount, subaccount, user_id, booking_id, currency } = req.body;
 
-  if (!email || !amount || !subaccount || !user_id || !booking_id) {
+  if (!email || !amount || !subaccount || !user_id || !booking_id || !currency) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
-    console.log("🔄 Initiating payment with:", { email, amount, subaccount });
+    const finalAmount = currency === "USD" ? amount * 130 : amount;
+    const paystackAmount = finalAmount * 100; // convert to kobo (Paystack's smallest unit)
+
+    console.log("🔄 Initiating payment with:", { email, amount, finalAmount, currency, subaccount });
 
     const response = await axios.post(
       "https://api.paystack.co/transaction/initialize",
       {
         email,
-        amount: amount * 100 * 130,
-        currency: "KES",
+        amount: paystackAmount,
+        currency,
         subaccount,
         callback_url: `https://tembezi.co.ke/booking/success?bookingId=${booking_id}`,
         metadata: { booking_id, user_id },
@@ -248,8 +251,8 @@ app.post("/api/initiate-payment", async (req, res) => {
         user_id,
         booking_id,
         response.data.data.reference,
-        amount * 100 * 130,
-        "KES",
+        paystackAmount,
+        currency,
         "Pending",
       ]
     );
@@ -259,16 +262,13 @@ app.post("/api/initiate-payment", async (req, res) => {
       reference: response.data.data.reference,
     });
   } catch (error) {
-    console.error(
-      "❌ Payment init error:",
-      error.response?.data || error.message || error
-    );
+    console.error("❌ Payment init error:", error.response?.data || error.message || error);
     return res.status(500).json({
-      error:
-        error.response?.data || error.message || "Failed to initiate payment",
+      error: error.response?.data || error.message || "Failed to initiate payment",
     });
   }
 });
+
 
 app.get("/success", (req, res) => {
   res.send(`

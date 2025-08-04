@@ -31,6 +31,7 @@ router.get("/summary", async (req, res) => {
           p.discount,
           p.featured,
           p.status,
+          p.currency,
           (
             SELECT COUNT(*) 
             FROM reviews r 
@@ -55,6 +56,7 @@ router.get("/summary", async (req, res) => {
         rating: tour.rating,
         reviews: tour.reviews,
         status:tour.status,
+        currency:tour.currency,
         image: tour.image || "/placeholder.jpg",
         ...(tour.discount && { discount: tour.discount }),
         ...(tour.featured && { featured: true })
@@ -93,6 +95,7 @@ router.get("/tours-page", async (req, res) => {
           p.featured,
           p.category,
           p.continent,
+          p.currency,
           (
             SELECT COUNT(*) 
             FROM reviews r 
@@ -121,6 +124,7 @@ router.get("/tours-page", async (req, res) => {
         image: tour.image || "/placeholder.jpg",
         category: tour.category,
         continent: tour.continent,
+        currency:tour.currency,
         discount: tour.discount !== null ? tour.discount : undefined,
         featured: tour.featured === 1 ? true : undefined,
       }));

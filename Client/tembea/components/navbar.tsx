@@ -140,23 +140,12 @@ export default function Navbar() {
             </SheetContent>
           </Sheet>
           <Link href="/" className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6 text-purple-600 mr-2"
-            >
-              <path d="M12 4V2" />
-              <path d="M5 10v4a7 7 0 0 0 14 0v-4" />
-              <path d="M12 4C8 4 7 8 7 10" />
-              <path d="M12 4c4 0 5 4 5 6" />
-            </svg>
+          <img
+  src="/logo.png"
+  alt="Logo"
+  className="h-12 w-12 text-purple-600"
+/>
+
             <span className="font-bold text-xl">Tembezi</span>
           </Link>
         </div>

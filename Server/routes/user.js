@@ -8,11 +8,14 @@ const bcrypt = require("bcrypt");
 require("dotenv").config();
 
 
+
 const transporter = nodemailer.createTransport({
-  service: "gmail", // or another email service
+  host: "smtp.zoho.com",        // Zoho SMTP server
+  port: 465,                    // Secure SSL port (use 587 for TLS)
+  secure: true,                 // true for port 465, false for 587
   auth: {
-    user: "tom.ndemo.adinfinite@gmail.com",
-    pass: "tbhwfuonpxrxrtha",
+    user: "admin@tembezi.co.ke",  // your Zoho email address
+    pass: "tembezi",    // your Zoho **app password**, not account password
   },
 });
 

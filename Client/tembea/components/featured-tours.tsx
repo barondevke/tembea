@@ -20,6 +20,7 @@ interface Tour {
   image: string
   featured?: boolean
   discount?: number
+  currency:string
 }
 
 export default function FeaturedTours() {
@@ -104,7 +105,10 @@ export default function FeaturedTours() {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-2xl font-bold">${tour.price}</span>
+                <span className="text-2xl font-bold">
+  {tour.currency === "KES" ? "Ksh" : tour.currency === "USD" ? "$" : ""}
+  {tour.price}
+</span>
                   <span className="text-muted-foreground"> / person</span>
                 </div>
               </div>

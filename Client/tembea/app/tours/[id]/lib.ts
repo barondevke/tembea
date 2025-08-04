@@ -32,6 +32,7 @@ export type Review = {
     notIncluded: string[];
     itinerary: ItineraryItem[];
     subaccount_code:string | null
+    currency:string | null;
   };
 
   type Params = {

@@ -306,6 +306,7 @@ router.post("/sign-in", async (req, res) => {
       role: user.role,
     };
 
+    console.log(req.session.user)
     await conn.query("DELETE FROM user_sessions WHERE user_id = ?", [user.id]);
 
     // Insert login record 

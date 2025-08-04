@@ -149,8 +149,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
         travelers: selectedTravelers,
         price: calculateTotalPrice(tour.price, selectedTravelers),
       });
-      console.log(bookingResponse)
-  
+      
       const bookingId = bookingResponse.data.booking_id;
   
       // 2. Create Stripe checkout session

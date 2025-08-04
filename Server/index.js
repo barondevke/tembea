@@ -231,7 +231,7 @@ app.post("/api/initiate-payment", async (req, res) => {
         amount: paystackAmount,
         currency,
         subaccount,
-        callback_url: `http://localhost:3000/booking/success?bookingId=${booking_id}`,
+        callback_url: `https://tembezi.co.ke/booking/success?bookingId=${booking_id}`,
         metadata: { booking_id, user_id },
       },
       {

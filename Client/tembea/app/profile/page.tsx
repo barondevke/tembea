@@ -65,7 +65,7 @@ export default function ProfilePage() {
         const response = await axios.get(`https://tembezi.co.ke/api/bookings/user/${user.id}`);
 
         const bookingIds = response.data.bookings.map((item: any) => item.id);
-        console.log(bookingIds)
+      
         // Step 2: Fetch full product details
         const enrichedBookings = await Promise.all(
           bookingIds.map(async (booking: any) => {

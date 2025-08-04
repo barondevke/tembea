@@ -68,7 +68,7 @@ export default function SignUpPage() {
     };
 
     try {
-      const response = await api.post("/api/user/verify", cleanedData);
+      const response = await api.post("https://tembezi.co.ke/api/user/verify", cleanedData);
       const res = response.data;
 
       if (res.proceed) {

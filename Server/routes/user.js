@@ -50,7 +50,7 @@ router.post("/verify", async (req, res) => {
     const verificationID = randomNumber();
 
     const mailOptions = {
-      from: '"Tembezi" <tom.ndemo.adinfinite@gmail.com>',
+      from: '"Tembezi" <admin@tembezi.co.ke>',
       to: email,
       subject: "Your verification code",
       text: `Your OTP for Tembezi sign up is ${code}. Best Regards, Tembezi`,

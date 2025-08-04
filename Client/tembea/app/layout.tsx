@@ -18,7 +18,8 @@ export const metadata: Metadata = {
   title: "Tembezi - Discover Amazing Tour Packages",
   description:
     "Find and book your next adventure with Tembezi, your trusted tourism advisor.",
-};
+    
+    }
 
 export default function RootLayout({
   children,
@@ -27,7 +28,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head><link rel="icon" href="/favicon.ico" sizes="any" /></head>
+      <head><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="128x128"/>
+</head>
       <body className={`${inter.className} ${inter.variable}`}>
         <Providers>
           <div className="flex flex-col min-h-screen">

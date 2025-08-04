@@ -129,14 +129,14 @@ router.post("/create-user", async (req, res) => {
     const password = await bcrypt.hash(data.password, saltRounds);
 
     const [result] = await conn.query(
-      `INSERT INTO Users (name, email, password, enabled, date_created, profile_image)
+      `INSERT INTO users (name, email, password, enabled, date_created, profile_image)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [data.name, data.email, password, 1, new Date(), null]
     );
 
     const userId = result.insertId;
 
-    const [users] = await conn.query("SELECT * FROM Users WHERE id = ?", [
+    const [users] = await conn.query("SELECT * FROM users WHERE id = ?", [
       userId,
     ]);
     const user = users[0];
@@ -305,7 +305,7 @@ router.post("/sign-in", async (req, res) => {
 
     await conn.query("DELETE FROM user_sessions WHERE user_id = ?", [user.id]);
 
-    // Insert login record
+    // Insert login record 
     await conn.query(
       `INSERT INTO user_sessions (user_id, session_id, login_time) VALUES (?, ?, ?)`,
       [user.id, req.sessionID, new Date()]
@@ -329,7 +329,7 @@ router.post("/admin/sign-in", async (req, res) => {
     const conn = await dbConnection;
 
     const [rows] = await conn.query(
-      "SELECT * FROM Users WHERE email = ? AND status = ? AND role=?",
+      "SELECT * FROM users WHERE email = ? AND status = ? AND role=?",
       [email,"active", "admin"]
     );
 

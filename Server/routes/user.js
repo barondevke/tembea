@@ -15,7 +15,8 @@ const transporter = nodemailer.createTransport({
   secure: true,                 // true for port 465, false for 587
   auth: {
     user: "admin@tembezi.co.ke",  // your Zoho email address
-    pass: "tembezi",    // your Zoho **app password**, not account password
+    pass: process.env.ZOHO_PASSWORD
+    ,    // your Zoho **app password**, not account password
   },
 });
 

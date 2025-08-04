@@ -394,7 +394,7 @@ router.post("/sign-out", async (req, res) => {
   });
 });
 
-router.get("/get-user/:id", requireLogin, async (req, res) => {
+router.get("/get-user/:id",  async (req, res) => {
   let userId = req.params.id;
 
   // If /get-user/0 or invalid ID, use session user ID

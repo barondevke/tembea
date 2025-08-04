@@ -141,8 +141,8 @@ router.post("/create-user", async (req, res) => {
     const password = await bcrypt.hash(data.password, saltRounds);
 
     const [result] = await conn.query(
-      `INSERT INTO users (name, email, password, enabled, date_created, profile_image)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO users (name, email, password, date_created, profile_image)
+       VALUES (?, ?, ?, ?,?)`,
       [data.name, data.email, password, 1, new Date(), null]
     );
 

@@ -136,7 +136,7 @@ export default function VerifyEmailPage() {
         });
 
         const createUserRes = await api.post(
-          `https://tembezi.co.ke//api/user/create-user`,
+          `https://tembezi.co.ke/api/user/create-user`,
           {
             verification,
           },

@@ -109,7 +109,7 @@ router.get("/verify-code/:verificationID/:trialCode", async (req, res) => {
     const conn = await dbConnection;
 
     // Check verification code
-    const [rows] = await conn.query("SELECT * FROM Verification WHERE id = ?", [
+    const [rows] = await conn.query("SELECT * FROM verification WHERE id = ?", [
       parseInt(verificationID),
     ]);
 
@@ -118,7 +118,7 @@ router.get("/verify-code/:verificationID/:trialCode", async (req, res) => {
       res.send({ proceed: true });
 
       // Delete used code
-      await conn.query("DELETE FROM Verification WHERE id = ?", [
+      await conn.query("DELETE FROM verification WHERE id = ?", [
         verificationID,
       ]);
     } else {

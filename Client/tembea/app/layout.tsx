@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head><link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="128x128"/>
+      <head><link rel="icon" type="image/x-icon" href="/favicon3.ico" sizes="256x256"/>
 </head>
       <body className={`${inter.className} ${inter.variable}`}>
         <Providers>

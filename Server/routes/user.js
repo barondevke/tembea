@@ -17,10 +17,15 @@ const transporter = nodemailer.createTransport({
     user: "admin@tembezi.co.ke",  // your Zoho email address
     pass: process.env.ZOHO_PASSWORD
     ,    // your Zoho **app password**, not account password
-  },
-  tls: {
-    rejectUnauthorized: false
-}
+  }
+});
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.log("Mailer error:", error);
+  } else {
+    console.log("Mailer is ready to send emails");
+  }
 });
 
 function randomNumber() {

@@ -521,20 +521,28 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
         <div className="lg:col-span-1">
           <div className="sticky top-20 border rounded-lg p-6 bg-white">
             <div className="flex items-center justify-between mb-4">
-              <div>
-                {tour.discount ? (
-                  <>
-                    <span className="text-3xl font-bold">${tour.discount_price}</span>
-                    <span className="text-2xl font-bold">
-  {tour.currency === "KES" ? "Ksh" : tour.currency === "USD" ? "$" : ""}
-  {tour.price}
-</span> <Badge className="ml-2 bg-red-500">{tour.discount}% OFF</Badge>
-                  </>
-                ) : (
-                  <span className="text-3xl font-bold">${tour.price}</span>
-                )}
-                <span className="text-muted-foreground"> / person</span>
-              </div>
+            <div>
+  {tour.discount ? (
+    <>
+      <span className="text-3xl font-bold">
+        {tour.currency === "KES" ? "Ksh" : "$"}
+        {tour.discount_price}
+      </span>
+      <span className="text-2xl font-bold ml-2 line-through text-muted-foreground">
+        {tour.currency === "KES" ? "Ksh" : "$"}
+        {tour.price}
+      </span>
+      <Badge className="ml-2 bg-red-500">{tour.discount}% OFF</Badge>
+    </>
+  ) : (
+    <span className="text-3xl font-bold">
+      {tour.currency === "KES" ? "Ksh" : "$"}
+      {tour.price}
+    </span>
+  )}
+  <span className="text-muted-foreground"> / person</span>
+</div>
+
             </div>
 
             <div className="space-y-6 mb-6">

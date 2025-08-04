@@ -30,6 +30,7 @@ interface Tour {
   discount?: number
   category: string
   continent: string
+  currency:string
 }
 
 // Sample locations for search
@@ -479,10 +480,15 @@ const resetFilters = () => {
                           <span className="text-muted-foreground text-sm">({tour.reviews} reviews)</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-2xl font-bold">${tour.price}</span>
-                            <span className="text-muted-foreground"> / person</span>
-                          </div>
+                        {console.log("Currency:", tour.currency)}
+                        <div>
+  <span className="text-2xl font-bold">
+    {tour.currency === "KES" ? "Ksh" : "$"}
+    {tour.price}
+  </span>
+  <span className="text-muted-foreground"> / person</span>
+</div>
+
                         </div>
                       </CardContent>
                       <CardFooter className="p-6 pt-0">

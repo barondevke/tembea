@@ -235,6 +235,7 @@ const [tours] = await conn.query(
     p.featured,
     p.category,
     p.continent,
+    p.currency,
     (
       SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id
     ) AS reviews,
@@ -264,6 +265,7 @@ const [tours] = await conn.query(
         continent: tour.continent,
         discount: tour.discount !== null ? tour.discount : undefined,
         featured: tour.featured === 1 ? true : undefined,
+        currency:tour.currency
       }));
   
       res.json({

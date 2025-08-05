@@ -16,7 +16,15 @@ import axios from "axios";
 import { Cookies } from "react-cookie";
 import { usePathname, useRouter } from "next/navigation";
 import api from "@/api";
-
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Tooltip,TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip"
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [loadingButton, setLoadingButton] = useState<
@@ -181,48 +189,53 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {user.name ? (
-            <div className="flex items-center gap-4">
-              <Link href="/profile">
-                <Avatar>
-                  <AvatarImage
-                    src={user.profile_image || ""}
-                    alt={user.name || "User"}
-                  />
-                  <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
-                </Avatar>
-              </Link>
-              <Button variant="ghost" onClick={signOut}>
-                Sign Out
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button
-                variant={"ghost"}
-                onClick={() => handleClick("/sign-in", "sign-in")}
-                disabled={loadingButton === "sign-in"}
-                className="flex items-center gap-2"
-              >
-                {loadingButton === "sign-in" && (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                )}
-                {loadingButton === "sign-in" ? "Loading..." : "Sign In"}
-              </Button>
+  {user.name ? (
+    <DropdownMenu>
+      <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Avatar className="cursor-pointer">
+              <AvatarImage
+                src={user.profile_image || ""}
+                alt={user.name || "User"}
+              />
+              <AvatarFallback>{user.name?.charAt(0) || "U"}</AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <p>Account</p>
+        </TooltipContent>
+      </Tooltip>
+      </TooltipProvider>
 
-              <Button
-                onClick={() => handleClick("/sign-up", "sign-up")}
-                disabled={loadingButton === "sign-up"}
-                className="flex items-center gap-2"
-              >
-                {loadingButton === "sign-up" && (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                )}
-                {loadingButton === "sign-up" ? "Loading..." : "Sign Up"}
-              </Button>
-            </div>
-          )}
-        </div>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel className="text-sm">Signed in as</DropdownMenuLabel>
+        <div className="px-3 pb-2 text-sm text-muted-foreground">{user.email}</div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => (window.location.href = "/profile")}>
+          Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={signOut}>
+          Sign Out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    <Button
+      variant="ghost"
+      onClick={() => handleClick("/sign-in", "sign-in")}
+      disabled={loadingButton === "sign-in"}
+      className="flex items-center gap-2"
+    >
+      {loadingButton === "sign-in" && (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      )}
+      {loadingButton === "sign-in" ? "Loading..." : "Sign In"}
+    </Button>
+  )}
+</div>
       </div>
     </header>
   );

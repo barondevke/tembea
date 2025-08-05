@@ -43,7 +43,7 @@ export default function SignInPage() {
     };
 
     const response = await api.post(
-      "/api/user/sign-in",
+      "https://tembezi.co.ke/api/user/sign-in",
       payload
     );
     const res = response.data;

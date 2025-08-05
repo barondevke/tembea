@@ -16,7 +16,7 @@ export default function AboutPage() {
       <section className="grid md:grid-cols-2 gap-12 items-center">
         <div>
           <img
-            src="/placeholder.svg?height=400&width=600"
+            src="/about-2.jpg?height=400&width=600"
             alt="Travelers exploring a destination"
             className="rounded-lg shadow-md"
           />
@@ -52,7 +52,7 @@ export default function AboutPage() {
         </div>
         <div className="order-1 md:order-2">
           <img
-            src="/placeholder.svg?height=400&width=600"
+            src="/about-3.jpg?height=400&width=600"
             alt="Tembezi founding team"
             className="rounded-lg shadow-md"
           />

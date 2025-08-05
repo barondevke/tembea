@@ -21,22 +21,36 @@ export default function ContactPage() {
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    // Simulate form submission
-    setTimeout(() => {
-      toast({
-        title: "Message sent",
-        description: "Thank you for contacting us. We'll get back to you soon!",
-      })
-      setName("")
-      setEmail("")
-      setSubject("")
-      setMessage("")
-      setIsSubmitting(false)
-    }, 1500)
-  }
+    e.preventDefault();
+    setIsSubmitting(true);
+  
+    try {
+      const res = await fetch("https://tembezi.co.ke/api/user/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, subject, message }),
+      });
+  
+      const data = await res.json();
+  
+      if (!res.ok) {
+        throw new Error(data.message || "Something went wrong");
+      }
+  
+      alert("Message sent successfully! Thank you for contacting us.");
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+    } catch (error) {
+      alert("Failed to send message");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  
 
   return (
     <div className="container py-12">
@@ -138,21 +152,7 @@ export default function ContactPage() {
             </p>
 
             <div className="space-y-6">
-              <div className="flex items-start">
-                <div className="bg-purple-100 p-3 rounded-full mr-4">
-                  <MapPin className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Our Office</h3>
-                  <address className="not-italic text-muted-foreground">
-                    1234 Tourism Road
-                    <br />
-                    Travel City, TC 56789
-                    <br />
-                    United States
-                  </address>
-                </div>
-              </div>
+             
 
               <div className="flex items-start">
                 <div className="bg-purple-100 p-3 rounded-full mr-4">
@@ -162,11 +162,10 @@ export default function ContactPage() {
                   <h3 className="font-semibold text-lg">Phone</h3>
                   <p className="text-muted-foreground">
                     <a href="tel:+12345678900" className="hover:text-purple-600">
-                      +1 (234) 567-8900
+                      +254 (797) 703639
                     </a>
                   </p>
-                  <p className="text-sm text-muted-foreground">Monday-Friday, 9:00 AM - 6:00 PM GMT+0</p>
-                </div>
+                 </div>
               </div>
 
               <div className="flex items-start">
@@ -177,7 +176,7 @@ export default function ContactPage() {
                   <h3 className="font-semibold text-lg">Email</h3>
                   <p className="text-muted-foreground">
                     <a href="mailto:contact@Tembezi.com" className="hover:text-purple-600">
-                      contact@Tembezi.com
+                      admin@tembezi.co.ke
                     </a>
                   </p>
                   <p className="text-sm text-muted-foreground">For general inquiries and support</p>
@@ -239,29 +238,12 @@ export default function ContactPage() {
                   <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
                 </svg>
               </a>
-              <a href="#" className="bg-purple-100 p-3 rounded-full hover:bg-purple-200 transition-colors">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5 text-purple-600"
-                >
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                  <rect x="2" y="9" width="4" height="12" />
-                  <circle cx="4" cy="4" r="2" />
-                </svg>
-              </a>
+              
             </div>
           </div>
 
-          <div className="mt-12 rounded-lg overflow-hidden h-80 bg-gray-200">
-            {/* This would be a map in a real implementation */}
+          {/*<div className="mt-12 rounded-lg overflow-hidden h-80 bg-gray-200">
+             This would be a map in a real implementation 
             <div className="w-full h-full flex items-center justify-center bg-purple-50">
               <div className="text-center">
                 <MapPin className="h-12 w-12 text-purple-600 mx-auto mb-4" />
@@ -269,7 +251,7 @@ export default function ContactPage() {
                 <p className="text-sm text-muted-foreground">Map would be displayed here</p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

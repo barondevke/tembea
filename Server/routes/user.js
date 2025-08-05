@@ -546,6 +546,35 @@ router.patch("/admin/users/:id/deactivate", async (req, res) => {
   }
 });
 
+router.post('/contact', async (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  if (!name || !email || !subject || !message) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  const mailOptions = {
+    from: `"Tembezi Contact Form" <${email}>`, // user email as sender
+    to: 'admin@tembezi.co.ke',
+    subject: `New Contact: ${subject}`,
+    html: `
+      <h3>New Message from Tembezi Contact Form</h3>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+      <p><strong>Message:</strong><br/>${message}</p>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return res.status(200).json({ message: 'Message sent successfully.' });
+  } catch (error) {
+    console.error('Email sending failed:', error);
+    return res.status(500).json({ message: 'Failed to send message.' });
+  }
+});
+
 
 
 

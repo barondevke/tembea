@@ -554,9 +554,10 @@ router.post('/contact', async (req, res) => {
   }
 
   const mailOptions = {
-    from: `"Tembezi Contact Form" <${email}>`, // user email as sender
-    to: 'admin@tembezi.co.ke',
-    subject: `New Contact: ${subject}`,
+    from: '"Tembezi Contact Inquiry" <admin@tembezi.co.ke>', // ✅ Must match authenticated user
+  to: 'admin@tembezi.co.ke',
+  replyTo: email,
+    subject: `${subject}`,
     html: `
       <h3>New Message from Tembezi Contact Form</h3>
       <p><strong>Name:</strong> ${name}</p>

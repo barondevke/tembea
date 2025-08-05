@@ -14,6 +14,13 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Slider } from "@/components/ui/slider"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 
 
 
@@ -40,6 +47,8 @@ const locations = [
   
 ]
 
+
+
 export default function ToursPage() {
   const [tours, setTours] = useState<Tour[]>([])
   const [loading, setLoading] = useState(true)
@@ -54,6 +63,8 @@ export default function ToursPage() {
   const [minRating, setMinRating] = useState<number>(0)
   const [sortOption, setSortOption] = useState("recommended")
   const [openLocationPopover, setOpenLocationPopover] = useState(false)
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false)
+
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -178,6 +189,156 @@ const resetFilters = () => {
     setLoading(true)
     router.push(page)
   }
+  const filterContent =  (
+    <div className="w-full md:w-72 space-y-6">
+    <div className="rounded-lg border p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-medium text-lg">Filters</h3>
+        <Button variant="ghost" size="sm" onClick={resetFilters}>
+          Reset All
+        </Button>
+      </div>
+
+      <div className="space-y-6">
+        <div>
+          <h4 className="font-medium mb-3">Price Range</h4>
+          <div className="px-2 space-y-4">
+<div className="flex flex-col space-y-2">
+<label htmlFor="minPrice" className="text-sm font-medium">Min Price ($)</label>
+<Input
+id="minPrice"
+type="number"
+min={0}
+max={10000}
+value={priceRange[0]}
+onChange={(e) => {
+  const value = Math.min(Number(e.target.value), priceRange[1])
+  setPriceRange([value, priceRange[1]])
+}}
+/>
+</div>
+<div className="flex flex-col space-y-2">
+<label htmlFor="maxPrice" className="text-sm font-medium">Max Price ($)</label>
+<Input
+id="maxPrice"
+type="number"
+min={priceRange[0]}
+max={10000}
+value={priceRange[1]}
+onChange={(e) => {
+  const value = Math.max(Number(e.target.value), priceRange[0])
+  setPriceRange([priceRange[0], value])
+}}
+/>
+</div>
+</div>
+
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-3">Duration</h4>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="duration-1-3"
+                checked={selectedDurations.includes("1-3")}
+                onCheckedChange={() => toggleDuration("1-3")}
+              />
+              <label htmlFor="duration-1-3" className="text-sm">
+                1-3 days
+              </label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="duration-4-7"
+                checked={selectedDurations.includes("4-7")}
+                onCheckedChange={() => toggleDuration("4-7")}
+              />
+              <label htmlFor="duration-4-7" className="text-sm">
+                4-7 days
+              </label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="duration-8-14"
+                checked={selectedDurations.includes("8-14")}
+                onCheckedChange={() => toggleDuration("8-14")}
+              />
+              <label htmlFor="duration-8-14" className="text-sm">
+                8-14 days
+              </label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="duration-15+"
+                checked={selectedDurations.includes("15+")}
+                onCheckedChange={() => toggleDuration("15+")}
+              />
+              <label htmlFor="duration-15+" className="text-sm">
+                15+ days
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-3">Categories</h4>
+          <div className="space-y-2">
+            {["adventure", "beach", "city", "cultural", "luxury", "nature"].map((category) => (
+              <div key={category} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`category-${category}`}
+                  checked={selectedCategories.includes(category)}
+                  onCheckedChange={() => toggleCategory(category)}
+                />
+                <label htmlFor={`category-${category}`} className="text-sm capitalize">
+                  {category}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-3">Continents</h4>
+          <div className="space-y-2">
+            {["africa", "asia", "europe", "north america", "south america", "oceania"].map((continent) => (
+              <div key={continent} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`continent-${continent}`}
+                  checked={selectedContinents.includes(continent)}
+                  onCheckedChange={() => toggleContinent(continent)}
+                />
+                <label htmlFor={`continent-${continent}`} className="text-sm capitalize">
+                  {continent}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="font-medium mb-3">Minimum Rating</h4>
+          <Select value={minRating.toString()} onValueChange={(value) => setMinRating(Number(value))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Any rating" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">Any rating</SelectItem>
+              <SelectItem value="3">3+ stars</SelectItem>
+              <SelectItem value="4">4+ stars</SelectItem>
+              <SelectItem value="4.5">4.5+ stars</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <Button className="w-full mt-6 bg-purple-600 hover:bg-purple-700" onClick={applyFilters}>
+        Apply Filters
+      </Button>
+    </div>
+  </div>
+  )
 
   return (
     <div className="container py-10">
@@ -261,7 +422,29 @@ const resetFilters = () => {
       </div>
 
       <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-6">
-        {/* Filters sidebar */}
+       
+       
+       
+      <div className="hidden md:block w-72">
+  {/* Filters component here */}
+  {filterContent}
+</div>
+
+<Sheet open={isMobileFiltersOpen} onOpenChange={setIsMobileFiltersOpen}>
+  <SheetTrigger asChild>
+    <Button className="md:hidden mb-4">Filters</Button>
+  </SheetTrigger>
+  <SheetContent side="left" className="w-[85%] sm:w-[300px] overflow-y-auto">
+    <SheetHeader>
+      <SheetTitle>Filters</SheetTitle>
+    </SheetHeader>
+    {filterContent}
+  </SheetContent>
+</Sheet>
+
+
+       
+        {/* Filters sidebar 
         <div className="w-full md:w-72 space-y-6">
           <div className="rounded-lg border p-4">
             <div className="flex items-center justify-between mb-4">
@@ -409,7 +592,7 @@ const resetFilters = () => {
               Apply Filters
             </Button>
           </div>
-        </div>
+        </div>*/}
 
         {/* Main content */}
         <div className="flex-1">

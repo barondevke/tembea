@@ -562,7 +562,6 @@ router.post('/contact', async (req, res) => {
       <h3>New Message from Tembezi Contact Form</h3>
       <p><strong>Name:</strong> ${name}</p>
       <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Subject:</strong> ${subject}</p>
       <p><strong>Message:</strong><br/>${message}</p>
     `,
   };

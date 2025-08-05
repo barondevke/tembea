@@ -88,11 +88,11 @@ export default function ContactPage() {
                   <SelectValue placeholder="Select a subject" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="general">General Inquiry</SelectItem>
-                  <SelectItem value="booking">Booking Question</SelectItem>
-                  <SelectItem value="support">Customer Support</SelectItem>
-                  <SelectItem value="feedback">Feedback</SelectItem>
-                  <SelectItem value="partnership">Partnership Opportunity</SelectItem>
+                  <SelectItem value="General Inquiry">General Inquiry</SelectItem>
+                  <SelectItem value="Booking Question">Booking Question</SelectItem>
+                  <SelectItem value="Customer Support">Customer Support</SelectItem>
+                  <SelectItem value="Feedback">Feedback</SelectItem>
+                  <SelectItem value="Partnership Opportnity">Partnership Opportunity</SelectItem>
                 </SelectContent>
               </Select>
             </div>

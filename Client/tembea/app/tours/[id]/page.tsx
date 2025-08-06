@@ -339,12 +339,35 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
           </div>
 
           <Tabs defaultValue="overview" className="mb-8">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-              <TabsTrigger value="included">What's Included</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
-            </TabsList>
+          <TabsList className="flex flex-wrap sm:grid sm:grid-cols-4 gap-2 sm:gap-0 w-full mb-4">
+          <TabsTrigger
+  value="overview"
+  className="flex-1 sm:flex-none text-sm sm:text-base data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-colors rounded-md"
+>
+    Overview
+  </TabsTrigger>
+  <TabsTrigger
+  value="itinerary"
+  className="flex-1 sm:flex-none text-sm sm:text-base data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-colors rounded-md"
+>
+  Itinerary
+</TabsTrigger>
+
+<TabsTrigger
+  value="included"
+  className="flex-1 sm:flex-none text-sm sm:text-base data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-colors rounded-md"
+>
+  What's Included
+</TabsTrigger>
+
+<TabsTrigger
+  value="reviews"
+  className="flex-1 sm:flex-none text-sm sm:text-base data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-colors rounded-md"
+>
+  Reviews
+</TabsTrigger>
+</TabsList>
+
 
             <TabsContent value="overview" className="pt-6">
               <p className="mb-6">{tour.description}</p>
@@ -527,11 +550,16 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
         {tour.currency === "KES" ? "Ksh" : "$"}
         {tour.discount_price}
       </span>
-      <span className="text-2xl font-bold ml-2 line-through text-muted-foreground">
+      <span className="text-muted-foreground"> / person</span>
+     
+      <br/>
+      <span className="text-xl font-bold ml-2 line-through text-muted-foreground">
         {tour.currency === "KES" ? "Ksh" : "$"}
         {tour.price}
       </span>
       <Badge className="ml-2 bg-red-500">{tour.discount}% OFF</Badge>
+      
+     
     </>
   ) : (
     <span className="text-3xl font-bold">
@@ -539,7 +567,7 @@ export default function TourDetailPage({ params }: { params: { id: number } }) {
       {tour.price}
     </span>
   )}
-  <span className="text-muted-foreground"> / person</span>
+  
 </div>
 
             </div>

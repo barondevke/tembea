@@ -28,6 +28,8 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const { signIn } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -48,8 +50,12 @@ export default function SignInPage() {
     );
     const res = response.data;
     if (!res.proceed) {
+      setError(res.message); // or setError("Incorrect password");
       throw new Error(res.message);
+    } else {
+      setError(""); // Clear error on success
     }
+    
 
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 7);
@@ -156,6 +162,11 @@ export default function SignInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                {error && (
+  <p className="text-red-500 text-sm mt-2">
+    {error}
+  </p>
+)}
                 <Button
                   type="button"
                   variant="ghost"

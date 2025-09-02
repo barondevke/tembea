@@ -124,6 +124,13 @@ export default function Navbar() {
                   Tours
                 </Link>
                 <Link
+                  href="/travel-clubs"
+                  className="block px-2 py-1 text-lg font-medium hover:text-purple-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Travel Clubs
+                </Link>
+                <Link
                   href="/about"
                   className="block px-2 py-1 text-lg font-medium hover:text-purple-600"
                   onClick={() => setIsMenuOpen(false)}
@@ -169,9 +176,17 @@ export default function Navbar() {
             Tours
           </Link>
           <Link
+                  href="/travel-clubs"
+                  className="text-sm font-medium hover:text-purple-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Travel Clubs
+                </Link>
+          <Link
             href="/about"
             className="text-sm font-medium hover:text-purple-600"
           >
+
             About
           </Link>
           <Link

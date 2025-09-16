@@ -182,6 +182,13 @@ export default function Navbar() {
                 >
                   Travel Clubs
                 </Link>
+                <Link
+                  href="/no-signal"
+                  className="text-sm font-medium hover:text-purple-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  No Signal
+                </Link>
           <Link
             href="/about"
             className="text-sm font-medium hover:text-purple-600"

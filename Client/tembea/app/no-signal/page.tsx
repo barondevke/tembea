@@ -369,7 +369,7 @@ export default function NoSignalLanding() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <img
-                src="/winter-camping-landscape-with-tent.jpg"
+                src="/tents.jpg"
                 alt="Adventure Experience"
                 className="w-full h-96 object-cover rounded-lg mb-6"
               />
@@ -531,11 +531,7 @@ export default function NoSignalLanding() {
 
         {/* Final CTA */}
         <section className="text-center bg-gradient-to-r from-orange-600/20 to-purple-600/20 rounded-2xl p-12 border border-orange-500/30">
-          <img
-            src="/disconnect.jpg"
-            alt="Adventure Awaits"
-            className="w-full h-48 object-cover rounded-lg mb-8"
-          />
+        
           <h2 className="text-4xl font-bold text-white mb-4">Ready to Disconnect?</h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Join us for an unforgettable weekend where the only notifications you'll get are from nature itself.

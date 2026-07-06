@@ -23,19 +23,38 @@ let redisStore = new RedisStore({
   prefix: "tembea",
 });
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3001",
-      "http://localhost:3000",
-      "https://tembezi.co.ke",
-      "https://www.tembezi.co.ke",
-      "https://tembea-nprmjnr8l-barondevkes-projects.vercel.app",
-      "https://tembea-murex.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+const allowedOrigins = new Set([
+  "http://localhost:3001",
+  "http://localhost:3000",
+  "https://tembezi.co.ke",
+  "https://www.tembezi.co.ke",
+  "https://tembea-murex.vercel.app",
+]);
+
+const allowedOriginPatterns = [/^https:\/\/tembea-[a-z0-9-]+\.vercel\.app$/];
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const isExplicitlyAllowed = allowedOrigins.has(origin);
+    const matchesPattern = allowedOriginPatterns.some((pattern) =>
+      pattern.test(origin)
+    );
+
+    if (isExplicitlyAllowed || matchesPattern) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(
   session({
     store: redisStore,

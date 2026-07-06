@@ -1,7 +1,7 @@
 const createClient = require("redis").createClient;
 
 const redisClient = createClient({
-  url: "redis://localhost:6379",
+  url: "redis://default:AUVHikDiiiMclZhsnRgnWhjcIfIyJuqE@hopper.proxy.rlwy.net:36608",
 });
 
 redisClient.connect().then(() => {

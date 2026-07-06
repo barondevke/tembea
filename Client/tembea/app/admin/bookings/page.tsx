@@ -78,7 +78,7 @@ export default function BookingsPage() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
-    axios.get("https://tembezi.co.ke/api/bookings")
+    axios.get("https://tembea.onrender.com/api/bookings")
       .then(res => setBookings(res.data))
       .catch(err => console.error("Error fetching bookings", err))
   }, [])

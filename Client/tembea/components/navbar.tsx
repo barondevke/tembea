@@ -69,7 +69,7 @@ export default function Navbar() {
       console.log(userId)
       if (userId) {
         const response = await api.get(
-          `https://tembezi.co.ke/api/user/get-user/${userId}`
+          `https://tembea.onrender.com/api/user/get-user/${userId}`
         );
         const res = response.data;
         console.log(response.data,"this is response")

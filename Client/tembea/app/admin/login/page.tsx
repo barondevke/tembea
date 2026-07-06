@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
     };
 
     const response = await api.post(
-      "https://tembezi.co.ke/api/user/admin/sign-in",
+      "https://tembea.onrender.com/api/user/admin/sign-in",
       payload
     );
     const res = response.data;

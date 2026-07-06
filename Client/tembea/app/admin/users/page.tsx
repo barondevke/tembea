@@ -16,7 +16,7 @@ export default function AdminUsersPage() {
   const router = useRouter()
 
   useEffect(() => {
-    axios.get("https://tembezi.co.ke/api/user/admin/users").then(res => {
+    axios.get("https://tembea.onrender.com/api/user/admin/users").then(res => {
       setUsers(res.data)
     })
   }, [])

@@ -46,7 +46,7 @@ router.post("/create", async (req, res) => {
       const booking = bookingRows[0];
       let tour = null;
       try {
-        const tourResponse = await fetch(`https://tembezi.co.ke/api/tours/${booking.product_id}`);
+        const tourResponse = await fetch(`https://tembea.onrender.com/api/tours/${booking.product_id}`);
         if (tourResponse.ok) {
           tour = await tourResponse.json();
         } else {

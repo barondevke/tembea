@@ -12,7 +12,7 @@ export default function UserDetailPage() {
   const [user, setUser] = useState<any>(null)
 
   useEffect(() => {
-    axios.get(`https://tembezi.co.ke/api/user/admin/users/${id}`).then(res => {
+    axios.get(`https://tembea.onrender.com/api/user/admin/users/${id}`).then(res => {
       setUser(res.data)
     })
   }, [id])

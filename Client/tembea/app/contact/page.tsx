@@ -25,7 +25,7 @@ export default function ContactPage() {
     setIsSubmitting(true);
   
     try {
-      const res = await fetch("https://tembezi.co.ke/api/user/contact", {
+      const res = await fetch("https://tembea.onrender.com/api/user/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

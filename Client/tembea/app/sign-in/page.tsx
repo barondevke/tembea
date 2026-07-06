@@ -45,7 +45,7 @@ export default function SignInPage() {
     };
 
     const response = await api.post(
-      "https://tembezi.co.ke/api/user/sign-in",
+      "https://tembea.onrender.com/api/user/sign-in",
       payload
     );
     const res = response.data;

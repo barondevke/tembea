@@ -19,7 +19,7 @@ export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
 
 useEffect(() => {
-  axios.get("https://tembezi.co.ke/api/transactions")
+  axios.get("https://tembea.onrender.com/api/transactions")
     .then(res => setTransactions(res.data))
     .catch(err => console.error("Failed to load transactions:", err));
 }, []);

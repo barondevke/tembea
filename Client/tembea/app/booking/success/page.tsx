@@ -26,7 +26,7 @@ export default function BookingSuccessPage() {
   
     const fetchBookingDetails = async () => {
       try {
-        const response = await fetch(`https://tembezi.co.ke/api/bookings/${bookingId}`);
+        const response = await fetch(`https://tembea.onrender.com/api/bookings/${bookingId}`);
         const data = await response.json();
   
         setBookingDetails({

@@ -19,7 +19,7 @@ export default function ProductDetailPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    axios.get(`https://tembezi.co.ke/api/tours/${id}`).then(res => {
+    axios.get(`https://tembea.onrender.com/api/tours/${id}`).then(res => {
       setProduct(res.data)
       setLoading(false)
     }).catch(() => setLoading(false))
@@ -52,7 +52,7 @@ export default function ProductDetailPage() {
 
   const handleSave = async () => {
     setSaving(true)
-    await axios.put(`https://tembezi.co.ke/api/tours/${id}`, product)
+    await axios.put(`https://tembea.onrender.com/api/tours/${id}`, product)
     setSaving(false)
     router.push("/admin/products")
   }
@@ -62,7 +62,7 @@ export default function ProductDetailPage() {
     if (!confirmDelete) return;
   
     try {
-      await axios.delete(`https://tembezi.co.ke/api/tours/${id}`);
+      await axios.delete(`https://tembea.onrender.com/api/tours/${id}`);
   
       // Update local state
      

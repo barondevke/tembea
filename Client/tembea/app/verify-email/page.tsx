@@ -123,7 +123,7 @@ export default function VerifyEmailPage() {
       // In a real application, you would make an API call to verify the code
       // For this demo, we'll simulate a verification process
         const res = await api.get(
-        `https://tembezi.co.ke/api/user/verify-code/${verification.id}/${parseInt(code)}`
+        `https://tembea.onrender.com/api/user/verify-code/${verification.id}/${parseInt(code)}`
       );
 
       
@@ -136,7 +136,7 @@ export default function VerifyEmailPage() {
         });
 
         const createUserRes = await api.post(
-          `https://tembezi.co.ke/api/user/create-user`,
+          `https://tembea.onrender.com/api/user/create-user`,
           {
             verification,
           },

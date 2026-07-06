@@ -19,7 +19,7 @@ function ReduxProvider({ children }: ChildrenType) {
         const userId = cookie.get("user_id");
         if (userId) {
           const response = await api.get(
-            `https://tembezi.co.ke/api/user/get-user/${userId}`,{
+            `https://tembea.onrender.com/api/user/get-user/${userId}`,{
               withCredentials: true
             }
           );

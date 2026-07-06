@@ -31,7 +31,7 @@ export default function FeaturedTours() {
   useEffect(() => {
     const fetchTours = async () => {
       try {
-        const res = await fetch("https://tembezi.co.ke/api/tours/summary")
+        const res = await fetch("https://tembea.onrender.com/api/tours/summary")
         if (!res.ok) {
           throw new Error("Failed to fetch tours")
         }

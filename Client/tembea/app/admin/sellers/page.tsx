@@ -44,7 +44,7 @@ export default function SellersPage() {
   // Fetch sellers from API
   useEffect(() => {
     axios
-      .get("https://tembezi.co.ke/api/sellers")
+      .get("https://tembea.onrender.com/api/sellers")
       .then((res) => setSellers(res.data))
       .catch((err) => {
         toast({
@@ -72,7 +72,7 @@ export default function SellersPage() {
     }
 
     try {
-      const res = await axios.post("https://tembezi.co.ke/api/sellers", newSeller)
+      const res = await axios.post("https://tembea.onrender.com/api/sellers", newSeller)
       const newEntry: Seller = {
         id: res.data.sellerId,
         name: newSeller.name,

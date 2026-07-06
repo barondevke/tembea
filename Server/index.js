@@ -25,8 +25,14 @@ let redisStore = new RedisStore({
 
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://localhost:3000","https://tembezi.co.ke",         // ✅ your live frontend
-    "https://www.tembezi.co.ke","https://tembea-nprmjnr8l-barondevkes-projects.vercel.app"],
+    origin: [
+      "http://localhost:3001",
+      "http://localhost:3000",
+      "https://tembezi.co.ke",
+      "https://www.tembezi.co.ke",
+      "https://tembea-nprmjnr8l-barondevkes-projects.vercel.app",
+      "https://tembea-murex.vercel.app",
+    ],
     credentials: true,
   })
 );

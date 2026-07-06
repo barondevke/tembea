@@ -26,7 +26,7 @@ let redisStore = new RedisStore({
 app.use(
   cors({
     origin: ["http://localhost:3001", "http://localhost:3000","https://tembezi.co.ke",         // ✅ your live frontend
-    "https://www.tembezi.co.ke"],
+    "https://www.tembezi.co.ke","https://tembea-nprmjnr8l-barondevkes-projects.vercel.app"],
     credentials: true,
   })
 );
@@ -231,7 +231,7 @@ app.post("/api/initiate-payment", async (req, res) => {
         amount: paystackAmount,
         currency,
         subaccount,
-        callback_url: `https://tembezi.co.ke/booking/success?bookingId=${booking_id}`,
+        callback_url: `https://https://tembea-nprmjnr8l-barondevkes-projects.vercel.app/booking/success?bookingId=${booking_id}`,
         metadata: { booking_id, user_id },
       },
       {
